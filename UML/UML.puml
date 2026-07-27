@@ -1,0 +1,225 @@
+@startuml uni_registration
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+
+abstract class Person {
+  # id : string
+  # name : string
+  # username : string
+  # passwordHash : string
+  + Person(id, name, username, passwordHash)
+  + {abstract} showMenu() : void
+  + {abstract} getRole() : string
+  + getId() : const string&
+  + getName() : const string&
+}
+
+class Student extends Person {
+  - enrolledCourses : vector<Course*>
+  - studentCard : StudentCard
+  + showMenu() : void
+  + getRole() : string
+  + enrol(course : Course&) : void
+  + drop(course : Course&) : void
+  + viewTimetable() : Timetable
+}
+
+class Lecturer extends Person {
+  - assignedCourses : vector<Course*>
+  + showMenu() : void
+  + getRole() : string
+  + viewEnrolmentList(course : const Course&) : vector<Student*>
+  + openAttendanceSession(slot : TimeSlot&) : AttendanceSession&
+  + closeAttendanceSession(session : AttendanceSession&) : void
+}
+
+class Administrator extends Person {
+  + showMenu() : void
+  + getRole() : string
+  + createUser(...) : void
+  + removeUser(userId : string) : void
+  + createCourse(...) : Course&
+  + generateReport() : Report
+}
+
+
+abstract class Course {
+  # code : string
+  # title : string
+  # creditValue : int
+  # capacity : int
+  # lecturer : Lecturer*
+  # prerequisites : vector<Course*>
+  # timetable : Timetable
+  # enrolledStudents : vector<Student*>
+  # attendanceRegister : AttendanceRegister
+  + Course(code, title, creditValue, capacity)
+  + {abstract} computeGrade(rawScore : double) : double
+  + {abstract} getType() : string
+  + isFull() : bool
+  + hasPrerequisite(c : const Course&) : bool
+  + operator<<(os : ostream&, c : const Course&) : ostream&
+}
+
+class LectureCourse extends Course {
+  + computeGrade(rawScore : double) : double
+  + getType() : string
+}
+
+class LabCourse extends Course {
+  - labGroupSize : int
+  + computeGrade(rawScore : double) : double
+  + getType() : string
+}
+
+class ProjectCourse extends Course {
+  - groupBased : bool
+  + computeGrade(rawScore : double) : double
+  + getType() : string
+}
+
+
+class TimeSlot {
+  - day : DayOfWeek
+  - startTime : Time
+  - endTime : Time
+  - location : string
+  + operator==(other : const TimeSlot&) : bool
+  + overlaps(other : const TimeSlot&) : bool
+  + operator<<(os : ostream&, t : const TimeSlot&) : ostream&
+}
+
+class Timetable {
+  - slots : vector<TimeSlot>
+  + addSlot(slot : TimeSlot) : void
+  + hasClashWith(other : const Timetable&) : bool
+  + operator<<(os : ostream&, t : const Timetable&) : ostream&
+}
+
+
+class EnrolmentException extends "std::exception" {
+  + what() : const char*
+}
+class PrerequisiteNotMetException extends EnrolmentException
+class CourseFullException extends EnrolmentException
+class TimetableClashException extends EnrolmentException
+
+class AttendanceException extends "std::exception" {
+  + what() : const char*
+}
+class SessionClosedException extends AttendanceException
+class NotEnrolledException extends AttendanceException
+class DuplicateAttendanceException extends AttendanceException
+
+class StorageException extends "std::exception" {
+  + what() : const char*
+}
+
+
+class AttendanceSession {
+  - sessionId : string
+  - slot : TimeSlot*
+  - openTime : time_t
+  - expiryDuration : int
+  - isOpen : bool
+  + open() : void
+  + close() : void
+  + isActive() : bool
+}
+
+class AttendanceRecord {
+  - student : Student*
+  - session : AttendanceSession*
+  - timestamp : time_t
+  - status : string
+  - captureMethod : string
+  + AttendanceRecord(...)
+  + operator<<(os : ostream&, r : const AttendanceRecord&) : ostream&
+}
+
+class CorrectionRecord extends AttendanceRecord {
+  - actingLecturer : Lecturer*
+  - reason : string
+}
+
+class AttendanceRegister {
+  - records : vector<AttendanceRecord*>
+  - sessions : vector<AttendanceSession>
+  + markPresent(s : Student&, session : AttendanceSession&, method : string) : void
+  + addCorrection(rec : CorrectionRecord) : void
+  + attendancePercentage(s : const Student&) : double
+  + eligibilityReport(threshold : double) : Report
+}
+
+
+abstract class AttendanceCapture {
+  + {abstract} beginSession() : void
+  + {abstract} captureNext() : string
+  + {abstract} endSession() : void
+  + {abstract} ~AttendanceCapture()
+}
+
+class FileReplayCapture extends AttendanceCapture {
+  - inputFile : string
+  + beginSession() : void
+  + captureNext() : string
+  + endSession() : void
+}
+
+class RotatingCodeCapture extends AttendanceCapture {
+  - currentCode : string
+  - expiry : time_t
+  + beginSession() : void
+  + captureNext() : string
+  + endSession() : void
+}
+
+
+
+class "Repository<T>" as RepositoryT {
+  - items : vector<T>
+  + add(item : T) : void
+  + remove(id : string) : void
+  + findById(id : string) : T*
+  + getAll() : vector<T>&
+}
+
+interface IStorage {
+  + {abstract} save(path : string) : void
+  + {abstract} load(path : string) : void
+}
+
+class FileStorage implements IStorage {
+  + save(path : string) : void
+  + load(path : string) : void
+}
+
+class Report {
+  - title : string
+  - lines : vector<string>
+  + operator<<(os : ostream&, r : const Report&) : ostream&
+}
+
+class StudentCard {
+  - uid : string
+  - owner : Student*
+}
+
+
+Student "1" o-- "0..*" StudentCard : aggregation
+Course "1" *-- "1" Timetable : composition
+Timetable "1" *-- "0..*" TimeSlot : composition
+Course "1" o-- "0..*" Student : aggregation (enrolled)
+Course "0..*" o-- "0..*" Course : prerequisites (aggregation)
+Course "1" *-- "1" AttendanceRegister : composition
+AttendanceRegister "1" *-- "0..*" AttendanceRecord : composition
+AttendanceRegister "1" *-- "0..*" AttendanceSession : composition
+Lecturer "1" o-- "0..*" Course : assigned (aggregation)
+AttendanceRegister ..> AttendanceCapture : depends on (interface)
+FileStorage ..> RepositoryT : persists
+RepositoryT ..> IStorage : uses
+
+@enduml
