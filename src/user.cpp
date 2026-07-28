@@ -14,3 +14,5 @@ std::string User::getFullName() const {
 bool User::checkPassword(const std::string& inputPass) const {
     return password == inputPass;
 }
+
+
