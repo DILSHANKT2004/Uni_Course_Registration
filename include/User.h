@@ -11,15 +11,15 @@ class User{
         string password;
         string fullname;
     public:
-        User(string uname, string pass, string fname){}
+        User(string uname, string pass, string fname);
         
         virtual ~User()=default;
 
-        string getusername() const;
-        string getfullname() const;
-        bool checkpassword(const string &pass) const;
+        string getUsername() const;
+        string getFullName() const;
+        bool checkPassword(const string &pass) const;
 
-        virtual void displaymenu() const=0;
+        virtual void displayMenu() const = 0;
 
 };
 
