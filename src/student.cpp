@@ -1,4 +1,4 @@
-#include "Student.h"
+#include "student.h"
 
 Student::Student(std::string uname, std::string pass, std::string name)
     : User(uname, pass, name) {}
