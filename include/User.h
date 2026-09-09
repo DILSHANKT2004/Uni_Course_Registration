@@ -7,16 +7,17 @@ using namespace std;
 
 class User{
     private:
+        string id;
+        string name;
         string username;
         string passwordHash;
-        string name;
-        string id;
+        
+        
     public:
         User(string uid, string nam, string uname, string pass);
         
         virtual ~User()=default;
 
-        string getrole() const;
         string getName() const;
         string getId() const;
         bool checkPassword(const string &pass) const;

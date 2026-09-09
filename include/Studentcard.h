@@ -1,7 +1,8 @@
 #ifndef STUDENTCARD_H
 #define STUDENTCARD_H
-using namespace std;
+
 #include <string>
+using namespace std;
 
 // Forward declaration of Student to avoid circular includes
 class Student;

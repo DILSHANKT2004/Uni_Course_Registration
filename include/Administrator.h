@@ -7,9 +7,9 @@ using namespace std;
 
 class Administrator : public User {
 public:
-    Administrator(string uname, string pass, string name);
+    Administrator(string id, string name, string uname, string pass);
     
-    void displayMenu() const override;
+    void showMenu() const override;
 };
 
 #endif

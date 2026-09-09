@@ -1,18 +1,22 @@
 #include "User.h"
 
-User::User(std::string uname, std::string pass, std::string name)
-    : username(uname), password(pass), fullname(name) {}
+User::User(string uid, string nam, string uname, string pass)
+    : id(uid), name(nam), username(uname), passwordHash(pass) {}
 
-std::string User::getUsername() const {
-    return username;
+//destructor
+User::~User() = default;
+
+//getName
+string User::getName() const{
+    return name;
 }
 
-std::string User::getFullName() const {
-    return fullname;
+//getId
+string User::getId() const{
+    return id;
 }
 
-bool User::checkPassword(const std::string& inputPass) const {
-    return password == inputPass;
+//checkPassword
+bool User::checkPassword(const string &pass) const{
+    return passwordHash == pass;
 }
-
-

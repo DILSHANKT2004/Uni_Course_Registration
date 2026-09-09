@@ -8,9 +8,9 @@
 
 int main() {
     // 1. Create one of each user type
-    Student studentUser("stu001", "password123", "Alice Smith");
-    Lecturer lecturerUser("lec001", "securepass", "Dr. Bob Jones");
-    Administrator adminUser("adm001", "adminpass", "Charlie Admin");
+    Student studentUser( "st001","Alice Smith", "stud@001","password123");
+    Lecturer lecturerUser("lec001", "Dr. Bob Jones", "lec@001", "securepass");
+    Administrator adminUser("adm001", "Charlie Admin", "adm@001", "adminpass");
 
     // 2. Create a vector of User pointers (Base class pointers)
     std::vector<User*> systemUsers;
@@ -23,7 +23,7 @@ int main() {
     
     for (User* currentUser : systemUsers) {
         // This single line will print a different menu depending on the actual object type
-        currentUser->displayMenu(); 
+        currentUser->showMenu(); 
         std::cout << "-----------------------------------" << std::endl;
     }
 

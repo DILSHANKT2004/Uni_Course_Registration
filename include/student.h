@@ -23,7 +23,6 @@ public:
     // Core Enrolment Engine Methods
     void enrol(Course* course);
     void drop(Course* course);
-    string getrole() const override;
     // Const-correct getter for the timetable
     const Timetable& viewTimetable() const;
 
