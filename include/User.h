@@ -12,7 +12,7 @@ class User{
         string name;
         string id;
     public:
-        User(string uname, string pass, string nam, string uid);
+        User(string uid, string nam, string uname, string pass);
         
         virtual ~User()=default;
 
