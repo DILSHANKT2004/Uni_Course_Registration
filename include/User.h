@@ -8,18 +8,20 @@ using namespace std;
 class User{
     private:
         string username;
-        string password;
-        string fullname;
+        string passwordHash;
+        string name;
+        string id;
     public:
-        User(string uname, string pass, string fname);
+        User(string uname, string pass, string nam, string uid);
         
         virtual ~User()=default;
 
-        string getUsername() const;
-        string getFullName() const;
+        string getrole() const;
+        string getName() const;
+        string getId() const;
         bool checkPassword(const string &pass) const;
 
-        virtual void displayMenu() const = 0;
+        virtual void showMenu() const = 0;
 
 };
 
