@@ -1,10 +1,9 @@
 #ifndef TIMESLOT_H
 #define TIMESLOT_H
 
-#include <string>
 #include <iostream>
+#include <string>
 
-// Enumeration for Days of the Week as shown in the UML diagram
 enum class DayOfWeek {
     Monday,
     Tuesday,
@@ -15,22 +14,25 @@ enum class DayOfWeek {
     Sunday
 };
 
-// Represents a specific time duration (HH:MM)
 struct Time {
     int hours;
     int minutes;
 
     bool operator<(const Time& other) const {
-        if (hours != other.hours) return hours < other.hours;
+        if (hours != other.hours) {
+            return hours < other.hours;
+        }
         return minutes < other.minutes;
     }
 
     bool operator<=(const Time& other) const {
-        return *this < other || (hours == other.hours && minutes == other.minutes);
+        return *this < other ||
+               (hours == other.hours && minutes == other.minutes);
     }
 
     bool operator==(const Time& other) const {
-        return hours == other.hours && minutes == other.minutes;
+        return hours == other.hours &&
+               minutes == other.minutes;
     }
 };
 
@@ -42,30 +44,32 @@ private:
     std::string location;
 
 public:
-    // Constructor
-    TimeSlot(DayOfWeek day, Time startTime, Time endTime, std::string location);
+    TimeSlot(
+        DayOfWeek day,
+        Time startTime,
+        Time endTime,
+        std::string location
+    );
 
-    // Default Constructor
     TimeSlot() = default;
 
-    // Getters (const-correct)
     DayOfWeek getDay() const;
     Time getStartTime() const;
     Time getEndTime() const;
     std::string getLocation() const;
 
-    // Setters
-    void setDay(DayOfWeek d);
-    void setStartTime(Time start);
-    void setEndTime(Time end);
-    void setLocation(const std::string& loc);
+    void setDay(DayOfWeek day);
+    void setStartTime(Time startTime);
+    void setEndTime(Time endTime);
+    void setLocation(const std::string& location);
 
-    // Operator Overloading for equality and clash detection
     bool operator==(const TimeSlot& other) const;
     bool overlaps(const TimeSlot& other) const;
 
-    // Stream Insertion Operator Overloading for displaying TimeSlot info
-    friend std::ostream& operator<<(std::ostream& os, const TimeSlot& t);
+    friend std::ostream& operator<<(
+        std::ostream& os,
+        const TimeSlot& timeSlot
+    );
 };
 
 #endif // TIMESLOT_H

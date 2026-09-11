@@ -1,5 +1,6 @@
-#include "TimeSlot.h"
+#include "Timeslot.h"
 #include <iomanip>
+#include <utility>
 
 // Constructor
 TimeSlot::TimeSlot(DayOfWeek day, Time startTime, Time endTime, std::string location)

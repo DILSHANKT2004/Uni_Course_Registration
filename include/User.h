@@ -7,19 +7,22 @@ using namespace std;
 
 class User{
     private:
+        string id;
+        string name;
         string username;
-        string password;
-        string fullname;
+        string passwordHash;
+        
+        
     public:
-        User(string uname, string pass, string fname){}
+        User(string uid, string nam, string uname, string pass);
         
         virtual ~User()=default;
 
-        string getusername() const;
-        string getfullname() const;
-        bool checkpassword(const string &pass) const;
+        string getName() const;
+        string getId() const;
+        bool checkPassword(const string &pass) const;
 
-        virtual void displaymenu() const=0;
+        virtual void showMenu() const = 0;
 
 };
 
