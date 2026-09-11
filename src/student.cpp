@@ -5,7 +5,7 @@ Student::Student(std::string uname, std::string pass, std::string name)
 //comment
 void Student::displayMenu() const {
     std::cout << "\n=== Student Dashboard ===" << std::endl;
-    std::cout << "Welcome, " << getFullName() << "!" << std::endl;
+    std::cout << "Welcome, " << getfullname() << "!" << std::endl;
     std::cout << "1. View Courses" << std::endl;
     std::cout << "2. Enrol in a Course" << std::endl;
     std::cout << "3. Drop a Course" << std::endl;
