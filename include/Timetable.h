@@ -1,25 +1,28 @@
 #ifndef TIMETABLE_H
 #define TIMETABLE_H
 
+#include "Timeslot.h"
 #include <vector>
 #include <iostream>
-#include "Timeslot.h" // Required because Timetable has a composition relationship with TimeSlot
 
 class Timetable {
 private:
-    std::vector<TimeSlot> slots;
+    std::vector<TimeSlot> slots; // Composition: Timetable owns its TimeSlots
 
 public:
-    // Default constructor
+    // Default Constructor
     Timetable() = default;
 
-    // Adds a new time slot to the timetable
+    // Adds a time slot to the timetable
     void addSlot(const TimeSlot& slot);
 
-    // Compares this timetable with another to detect scheduling conflicts
+    // Getter for time slots
+    const std::vector<TimeSlot>& getSlots() const;
+
+    // Checks if adding 'other' timetable creates a time clash with existing slots
     bool hasClashWith(const Timetable& other) const;
 
-    // Overloaded stream insertion operator for printing the timetable (FR6.2)
+    // Stream insertion operator overload for output
     friend std::ostream& operator<<(std::ostream& os, const Timetable& t);
 };
 
