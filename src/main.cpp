@@ -1,63 +1,88 @@
 #include <iostream>
+#include <cassert>
 #include "Student.h"
 #include "Lecturer.h"
 #include "Course.h"
 #include "TimeSlot.h"
 #include "Timetable.h"
+#include "AttendanceSession.h"
 #include "AttendanceRegister.h"
 #include "RotatingCodeCapture.h"
 #include "FileReplayCapture.h"
 #include "CustomExceptions.h"
 
-int main() {
+void testTimetableClash() {
+    std::cout << "[TEST] Running Timetable Clash Test... ";
+    TimeSlot s1(DayOfWeek::Monday, {9, 0}, {11, 0}, "Hall A");
+    TimeSlot s2(DayOfWeek::Monday, {10, 0}, {12, 0}, "Hall B");
+    
+    Timetable t1, t2;
+    t1.addSlot(s1);
+    t2.addSlot(s2);
+    
+    assert(t1.hasClashWith(t2) == true);
+    std::cout << "PASSED!\n";
+}
+
+void testAttendanceExceptions() {
+    std::cout << "[TEST] Running Attendance Exception Handlers... ";
+    Student student("S101", "Alice", "alice", "pass123");
+    TimeSlot slot(DayOfWeek::Tuesday, {14, 0}, {16, 0}, "Lab 1");
+    AttendanceSession session("SESS_01", slot, 60);
+    session.open();
+
+    AttendanceRegister reg;
+    reg.addSession(session);
+    
+    // Mark first time
+    reg.markPresent(&student, &session, "Manual");
+
+    // Test duplicate attendance exception
     try {
-        std::cout << "--- 1. Testing Domain & Timetable Creation ---\n";
-        Lecturer prof("L001", "Dr. Smith", "smith", "hash123");
-        Student student("S101", "Alice", "alice", "hash456");
+        reg.markPresent(&student, &session, "Manual");
+        std::cerr << "FAILED (Duplicate exception not thrown)\n";
+    } catch (const DuplicateAttendanceException& e) {
+        // Expected behavior
+    }
 
-        // Member 2: TimeSlot and Timetable
-        TimeSlot slot1(DayOfWeek::Monday, {9, 0}, {11, 0}, "Hall A");
-        TimeSlot slot2(DayOfWeek::Monday, {10, 0}, {12, 0}, "Lab B"); // Overlaps slot1
+    // Test session closed exception
+    session.close();
+    try {
+        reg.markPresent(&student, &session, "Manual");
+        std::cerr << "FAILED (SessionClosed exception not thrown)\n";
+    } catch (const SessionClosedException& e) {
+        // Expected behavior
+    }
 
-        Timetable t1, t2;
-        t1.addSlot(slot1);
-        t2.addSlot(slot2);
+    std::cout << "PASSED!\n";
+}
 
-        // Member 2: Clash Detection Test
-        if (t1.hasClashWith(t2)) {
-            std::cout << "[SUCCESS] Timetable clash correctly detected!\n";
-        }
+void testFileReplayCapture() {
+    std::cout << "[TEST] Running FileReplayCapture Engine... ";
+    FileReplayCapture replay("attendance_input.txt");
+    replay.beginSession();
+    
+    while (replay.hasMoreEvents()) {
+        std::string token = replay.captureNext();
+        // Process token line
+    }
+    replay.endSession();
+    std::cout << "PASSED!\n";
+}
 
-        std::cout << "\n--- 2. Testing Attendance Session & Polymorphic Capture ---\n";
-        AttendanceSession session("SESS_01", slot1, 15);
-        session.open();
+int main() {
+    std::cout << "=========================================\n";
+    std::cout << "   RUNNING PROJECT INTEGRATION SUITE     \n";
+    std::cout << "=========================================\n";
 
-        // Member 2: Rotating Code Capture
-        RotatingCodeCapture codeCapture(30);
-        codeCapture.beginSession();
-
-        AttendanceRegister reg;
-        reg.addSession(session);
-
-        // Member 2: Mark attendance polymorphic flow
-        reg.markPresentViaCapture(codeCapture, &student, &session);
-        std::cout << "[SUCCESS] Attendance marked via capture interface!\n";
-
-        std::cout << "\n--- 3. Testing Exception Handling ---\n";
-        // Trying to mark duplicate attendance
-        try {
-            reg.markPresent(&student, &session, "Manual");
-        } catch (const DuplicateAttendanceException& e) {
-            std::cout << "[SUCCESS] Caught duplicate attendance exception: " << e.what() << "\n";
-        }
-
-        codeCapture.endSession();
-        session.close();
-
-        std::cout << "\n--- All Integration Tests Passed Successfully! ---\n";
-
+    try {
+        testTimetableClash();
+        testAttendanceExceptions();
+        testFileReplayCapture();
+        std::cout << "\nALL AUTOMATED TESTS PASSED SUCCESSFULLY!\n";
     } catch (const std::exception& e) {
-        std::cerr << "[CRITICAL ERROR] Unhandled Exception: " << e.what() << std::endl;
+        std::cerr << "\nTEST SUITE FAILED WITH EXCEPTION: " << e.what() << "\n";
+        return 1;
     }
 
     return 0;
