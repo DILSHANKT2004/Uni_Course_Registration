@@ -7,8 +7,8 @@
 // Constructor initializes core attributes and dynamically allocates the composed AttendanceRegister
 Course::Course(std::string code, std::string title, int creditValue, int capacity)
     : code(code), title(title), creditValue(creditValue), capacity(capacity) {
-    // Composition: The course strictly owns this register[cite: 1]
-     attendanceRegister = new AttendanceRegister(this); 
+    // Composition: the course strictly owns this register.
+    attendanceRegister = new AttendanceRegister();
 }
 
 // Destructor cleans up dynamically allocated composition objects[cite: 1]

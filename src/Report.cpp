@@ -4,6 +4,10 @@
 Report::Report(std::string title) : title(title) {
 }
 
+void Report::setTitle(const std::string& newTitle) {
+    title = newTitle;
+}
+
 // Appends a new line of data to the internal vector
 void Report::addLine(const std::string& line) {
     lines.push_back(line);

@@ -16,3 +16,7 @@ std::string Person::getId() const {
 std::string Person::getName() const {
     return name;
 }
+
+std::string Person::getRole() const {
+    return "User"; 
+}

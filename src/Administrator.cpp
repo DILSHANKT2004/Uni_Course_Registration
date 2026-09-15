@@ -6,10 +6,13 @@
 
 // Constructor utilizing an initializer list to pass credentials to the base class
 Administrator::Administrator(std::string id, std::string name, std::string username, std::string password)
-    : User(id, name, username, password) {
+    : Person(id, name, username, password) {
 }
 
 // Returns the role string as specified in the class diagram
+std::string Administrator::getRole() const {
+    return "Administrator";
+}
 
 
 // Polymorphic menu implementation for the Administrator role[cite: 1]

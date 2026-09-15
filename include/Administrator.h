@@ -1,14 +1,14 @@
 #ifndef ADMINISTRATOR_H
 #define ADMINISTRATOR_H
 
-#include "User.h"
+#include "Person.h"
 #include <string>
 
 // Forward declarations for return types and parameters
 class Course;
 class Report;
 
-class Administrator : public User {
+class Administrator : public Person {
 public:
     // Constructor
     Administrator(std::string id, std::string name, std::string username, std::string password);

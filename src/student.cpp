@@ -4,8 +4,7 @@
 #include <iostream>
 #include <algorithm>
 
- #include "EnrolmentException.h"
- #include "TimetableClashException.h"
+#include "CustomExceptions.h"
 
 // Constructor: Passes credentials to the Person base class and initializes the StudentCard
 Student::Student(std::string id, std::string name, std::string username, std::string password)
@@ -54,21 +53,13 @@ void Student::drop(Course* course) {
 }
 
 // Const-correct getter for the timetable
-const Timetable& Student::getTimetable() const {
+const Timetable& Student::viewTimetable() const {
     return personalTimetable;
 }
 
 // Polymorphic menu implementation [FR1.3]
 void Student::showMenu() const {
     std::cout << "\n=== Student Dashboard ===" << std::endl;
-<<<<<<< HEAD
-    std::cout << "Welcome, " << getfullname() << "!" << std::endl;
-    std::cout << "1. View Courses" << std::endl;
-    std::cout << "2. Enrol in a Course" << std::endl;
-    std::cout << "3. Drop a Course" << std::endl;
-    std::cout << "4. View Timetable" << std::endl;
-    std::cout << "0. Logout" << std::endl;
-=======
     std::cout << "Welcome, " << getName() << "!" << std::endl;
     std::cout << "1. View Enrolled Courses\n";
     std::cout << "2. Enrol in a Course\n";
@@ -77,5 +68,4 @@ void Student::showMenu() const {
     std::cout << "5. Logout\n";
     std::cout << "Select an option: ";
     // Interactive switch-case logic handled in your UI controller
->>>>>>> 4603edd6c735434cb8ad8676a44cfd1af8d51fca
 }

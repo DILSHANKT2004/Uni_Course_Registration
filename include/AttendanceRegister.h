@@ -2,6 +2,7 @@
 #define ATTENDANCEREGISTER_H
 
 #include "AttendanceRecord.h"
+#include "CorrectionRecord.h"
 #include "AttendanceSession.h"
 #include "AttendanceCapture.h"
 #include "CustomExceptions.h"

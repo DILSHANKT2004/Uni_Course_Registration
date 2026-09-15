@@ -38,18 +38,3 @@ std::ostream& operator<<(std::ostream& os, const AttendanceRecord& record) {
     return os;
 }
 
-// Parametrized constructor for derived CorrectionRecord
-CorrectionRecord::CorrectionRecord(const Student* student, const AttendanceSession* session, 
-                                   std::string status, std::string captureMethod, 
-                                   const Lecturer* actingLecturer, std::string reason)
-    : AttendanceRecord(student, session, std::move(status), std::move(captureMethod)),
-      actingLecturer(actingLecturer), reason(std::move(reason)) {}
-
-// Getters for CorrectionRecord
-const Lecturer* CorrectionRecord::getActingLecturer() const {
-    return actingLecturer;
-}
-
-std::string CorrectionRecord::getReason() const {
-    return reason;
-}

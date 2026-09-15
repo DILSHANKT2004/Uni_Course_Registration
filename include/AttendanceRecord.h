@@ -35,20 +35,4 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const AttendanceRecord& record);
 };
 
-// Derived class representing a corrected attendance entry
-class CorrectionRecord : public AttendanceRecord {
-private:
-    const Lecturer* actingLecturer;
-    std::string reason;
-
-public:
-    CorrectionRecord(const Student* student, const AttendanceSession* session, 
-                     std::string status, std::string captureMethod, 
-                     const Lecturer* actingLecturer, std::string reason);
-
-    // Getters
-    const Lecturer* getActingLecturer() const;
-    std::string getReason() const;
-};
-
 #endif // ATTENDANCERECORD_H

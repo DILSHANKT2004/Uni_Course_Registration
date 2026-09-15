@@ -12,7 +12,10 @@ private:
 
 public:
     // Constructor
+    Report() = default;
     Report(std::string title);
+
+    void setTitle(const std::string& newTitle);
 
     // Method to append a new line of text to the report
     void addLine(const std::string& line);

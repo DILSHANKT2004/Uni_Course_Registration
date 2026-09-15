@@ -2,7 +2,7 @@
 #define LECTURER_H
 using namespace std;
 
-#include "User.h"
+#include "Person.h"
 #include <vector>
 #include <string>
 
@@ -12,7 +12,7 @@ class Student;
 class TimeSlot;
 class AttendanceSession;
 
-class Lecturer : public User {
+class Lecturer : public Person {
 private:
     // Aggregation: A lecturer is assigned to courses, but does not strictly own them
     std::vector<Course*> assignedCourses; 
