@@ -52,6 +52,10 @@ void Student::drop(Course* course) {
     }
 }
 
+bool Student::isEnrolledIn(const Course* course) const {
+    return std::find(enrolledCourses.begin(), enrolledCourses.end(), course) != enrolledCourses.end();
+}
+
 // Const-correct getter for the timetable
 const Timetable& Student::viewTimetable() const {
     return personalTimetable;
@@ -68,4 +72,8 @@ void Student::showMenu() const {
     std::cout << "5. Logout\n";
     std::cout << "Select an option: ";
     // Interactive switch-case logic handled in your UI controller
+}
+
+std::string Student::getRole() const {
+    return "Student";
 }

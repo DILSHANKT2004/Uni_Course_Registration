@@ -2,40 +2,39 @@
 #define ADMINISTRATOR_H
 
 #include "Person.h"
+#include "Repository.h"
+#include "Report.h"
 #include <string>
 
-// Forward declarations for return types and parameters
+// Forward declarations
 class Course;
-class Report;
 
 class Administrator : public Person {
-public:
-    // Constructor
-    Administrator(std::string id, std::string name, std::string username, std::string password);
+private:
+    Repository<Person>* personRepo;
+    Repository<Course>* courseRepo;
 
-    // Polymorphic dashboard implementation
+public:
+    Administrator(std::string id, std::string name, std::string username, std::string password, 
+                  Repository<Person>* pRepo = nullptr, Repository<Course>* cRepo = nullptr);
+    
+    ~Administrator() override = default;
+
+    std::string getRole() const; // Identifies the role polymorphically
     void showMenu() const override;
 
-    // Returns the role identifier as per the class diagram
-    std::string getRole() const;
-
-    // === User Management (FR1.2) ===
-    // Note: Signatures can be expanded to take specific parameters (e.g., username, role) 
-    // depending on how you implement your UI controller.
-    void createUser(); 
-    void updateUser(const std::string& targetId); 
+    // User Management 
+    void createUser();
+    void updateUser(const std::string& targetId);
     void removeUser(const std::string& targetId);
 
-    // === Course Management (FR2.1) ===
-    // The administrator manages course offerings, which can throw exceptions if 
-    // business rules (like deleting a non-existent course) are violated.
+    // Course Management 
     void createCourse();
     void editCourse(const std::string& courseCode);
     void removeCourse(const std::string& courseCode);
 
-    // === Reporting (FR6.1) ===
-    // Generates a system report (e.g., enrolment summary per course)[cite: 1].
+    // System Reports
     Report generateReport() const;
 };
 
-#endif // ADMINISTRATOR_H
+#endif 

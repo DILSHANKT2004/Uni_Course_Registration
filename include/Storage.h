@@ -6,8 +6,8 @@
 class Storage {
 public:
     virtual ~Storage() = default;
-    virtual void save(std::string filename) = 0; 
-    virtual void load(std::string filename) = 0; 
+    virtual void load(const std::string& path) = 0;
+    virtual void save(const std::string& path) = 0;
 };
 
 #endif 

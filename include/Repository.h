@@ -1,49 +1,48 @@
 #ifndef REPOSITORY_H
 #define REPOSITORY_H
 
-#include "Storage.h"
 #include <vector>
 #include <string>
-#include <map>
+#include <algorithm>
+#include <stdexcept>
 
 template <typename T>
-class Repository : public Storage {
+class Repository {
 private:
-    std::map<std::string, T*> data;
+    std::vector<T*> items;
 
 public:
     ~Repository() {
-        for (auto const& [key, val] : data) {
-            delete val;
+        for (T* item : items) {
+            delete item;
+        }
+        items.clear();
+    }
+
+    void add(T* item) {
+        if (item) {
+            items.push_back(item);
         }
     }
 
-    std::vector<T*> getAll() { //[cite: 1]
-        std::vector<T*> list;
-        for (auto const& [key, val] : data) {
-            list.push_back(val);
+    void remove(T* item) {
+        auto it = std::find(items.begin(), items.end(), item);
+        if (it != items.end()) {
+            items.erase(it);
         }
-        return list;
     }
 
-    T* findById(std::string id) { //[cite: 1]
-        if (data.find(id) != data.end()) {
-            return data[id];
+    T* findById(const std::string& id) const {
+        for (T* item : items) {
+            if (item->getId() == id) {
+                return item;
+            }
         }
         return nullptr;
     }
 
-    void add(std::string id, T* item) {
-        data[id] = item;
-    }
-
-    
-    void save(std::string filename) override {
-        
-    }
-
-    void load(std::string filename) override {
-
+    std::vector<T*> getAll() const {
+        return items;
     }
 };
 

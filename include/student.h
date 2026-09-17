@@ -2,7 +2,7 @@
 #define STUDENT_H
 using namespace std;
 
-#include "Studentcard.h"
+#include "StudentCard.h"
 #include "Person.h"
 #include "Timetable.h" // Requires composition, so the full type is needed
 #include <vector>
@@ -24,11 +24,13 @@ public:
     // Core Enrolment Engine Methods
     void enrol(Course* course);
     void drop(Course* course);
+    bool isEnrolledIn(const Course* course) const;
     // Const-correct getter for the timetable
     const Timetable& viewTimetable() const;
 
     // Fulfilling the abstract interface requirement
     void showMenu() const override; 
+    std::string getRole() const override;
 };
 
 #endif // STUDENT_H

@@ -47,8 +47,13 @@ public:
     void removeStudent(Student* student);
 
     // Const-correct getters[cite: 1]
+    const std::string& getId() const;
     const std::string& getCode() const;
     const std::string& getTitle() const;
+    int getCreditValue() const;
+    int getCapacity() const;
+    
+    const std::vector<Course*>& getPrerequisites() const;
     const Timetable& getTimetable() const;
     const std::vector<Student*>& getEnrolledStudents() const;
 
