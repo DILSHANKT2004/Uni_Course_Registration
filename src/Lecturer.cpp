@@ -6,18 +6,16 @@
 #include <iostream>
 #include <algorithm>
 #include <stdexcept>
+#include <sstream>
 
-// Constructor utilizing an initializer list to pass credentials to the base class
 Lecturer::Lecturer(std::string id, std::string name, std::string username, std::string password)
     : Person(id, name, username, password) {
 }
 
-// Returns the role string as specified in the class diagram
 std::string Lecturer::getRole() const {
     return "Lecturer";
 }
 
-// Polymorphic menu implementation for the Lecturer role[cite: 1]
 void Lecturer::showMenu() const {
     std::cout << "\n=== Lecturer Dashboard ===\n";
     std::cout << "Welcome, " << getName() << "!\n";
@@ -29,9 +27,7 @@ void Lecturer::showMenu() const {
     std::cout << "Select an option: ";
 }
 
-// Allows the lecturer to view the enrolment list of their own courses only[cite: 1]
 std::vector<Student*> Lecturer::viewEnrolledStudents(const Course& course) const {
-    // Verify that the course is assigned to this lecturer
     bool isAssigned = false;
     for (const Course* assignedCourse : assignedCourses) {
         if (assignedCourse == &course) {
@@ -40,33 +36,49 @@ std::vector<Student*> Lecturer::viewEnrolledStudents(const Course& course) const
         }
     }
 
-    // Throw an exception if the business rule is violated[cite: 1]
     if (!isAssigned) {
-        // You can replace std::invalid_argument with a custom exception 
-        // like UnauthorizedAccessException if you have one defined in your hierarchy.
         throw std::invalid_argument("Access Denied: Lecturer is not assigned to this course.");
     }
 
     return course.getEnrolledStudents();
 }
 
-// Opens an attendance session for a specific time slot[cite: 1]
 AttendanceSession* Lecturer::openAttendanceSession(TimeSlot& slot) {
-    // Add logic here to verify the slot belongs to one of the lecturer's courses
-    // before instantiating the session, throwing an exception if invalid.
-    
-    std::cout << "Opening attendance session...\n";
-    return nullptr; 
+    bool slotBelongsToAssignedCourse = false;
+
+    for (const Course* assignedCourse : assignedCourses) {
+        if (!assignedCourse) {
+            continue;
+        }
+
+        const std::vector<TimeSlot>& assignedSlots = assignedCourse->getTimetable().getSlots();
+        if (std::find(assignedSlots.begin(), assignedSlots.end(), slot) != assignedSlots.end()) {
+            slotBelongsToAssignedCourse = true;
+            break;
+        }
+    }
+
+    if (!slotBelongsToAssignedCourse) {
+        throw std::invalid_argument("Attendance session cannot be opened: this slot is not part of an assigned course.");
+    }
+
+    std::ostringstream sessionIdStream;
+    sessionIdStream << getId() << "-" << std::time(nullptr);
+
+    AttendanceSession* session = new AttendanceSession(sessionIdStream.str(), slot, 10);
+    session->open();
+    return session;
 }
 
-// Manually closes an active attendance session[cite: 1]
 void Lecturer::closeAttendanceSession(AttendanceSession& session) {
-    std::cout << "Closing attendance session...\n";
-    // session.setClosed(true);
+    session.close();
 }
 
-// Helper method to assign a course to this lecturer
 void Lecturer::assignCourse(Course* course) {
+    if (course == nullptr) {
+        throw std::invalid_argument("Course pointer cannot be null.");
+    }
+
     auto it = std::find(assignedCourses.begin(), assignedCourses.end(), course);
     if (it == assignedCourses.end()) {
         assignedCourses.push_back(course);

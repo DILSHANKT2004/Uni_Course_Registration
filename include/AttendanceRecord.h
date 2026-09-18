@@ -5,7 +5,6 @@
 #include <ctime>
 #include <iostream>
 
-// Forward declarations to avoid circular dependencies
 class Student;
 class Lecturer;
 class AttendanceSession;
@@ -15,8 +14,8 @@ protected:
     const Student* student;
     const AttendanceSession* session;
     std::time_t timestamp;
-    std::string status;        // e.g., "present", "late"
-    std::string captureMethod; // e.g., "RotatingCode", "FileReplay"
+    std::string status;        
+    std::string captureMethod; 
 
 public:
     // Constructors

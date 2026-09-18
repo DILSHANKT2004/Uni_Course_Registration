@@ -33,7 +33,6 @@ void Administrator::showMenu() const {
     std::cout << "Select an option: ";
 }
 
-// === User Management 
 
 void Administrator::createUser() {
     if (!personRepo) {
@@ -104,11 +103,9 @@ void Administrator::removeUser(const std::string& targetId) {
     }
 
     personRepo->remove(user);
-    delete user; 
     std::cout << "User " << targetId << " removed successfully.\n";
 }
 
-// === Course Management (FR2.1) ===[cite: 1]
 
 void Administrator::createCourse() {
     if (!courseRepo) {
@@ -116,7 +113,7 @@ void Administrator::createCourse() {
     }
 
     std::string code, title;
-    double credits;
+    int credits;
     int capacity;
 
     std::cout << "--- Create New Course ---\n";
@@ -136,7 +133,12 @@ void Administrator::createCourse() {
     std::cin >> capacity;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-    // courseRepo->add(new LectureCourse(code, title, credits, capacity));
+    if (credits <= 0 || capacity < 0) {
+        std::cout << "Invalid course values. Course was not created.\n";
+        return;
+    }
+
+    courseRepo->add(new LectureCourse(code, title, credits, capacity));
     std::cout << "Course '" << code << "' created successfully.\n";
 }
 
@@ -155,7 +157,7 @@ void Administrator::editCourse(const std::string& courseCode) {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     if (newCapacity > 0) {
-        // course->setCapacity(newCapacity); // Assumes a setCapacity method exists in Course.h
+        course->setCapacity(newCapacity);
         std::cout << "Course updated successfully.\n";
     } else {
         std::cout << "No changes made.\n";
@@ -171,11 +173,9 @@ void Administrator::removeCourse(const std::string& courseCode) {
     }
 
     courseRepo->remove(course);
-    delete course;
     std::cout << "Course " << courseCode << " removed successfully.\n";
 }
 
-// === Reporting (FR6.1) ===[cite: 1]
 
 Report Administrator::generateReport() const {
     std::cout << "Generating system enrolment report...\n";
@@ -188,9 +188,8 @@ Report Administrator::generateReport() const {
         
         for (Course* c : courseRepo->getAll()) {
             if (c) {
-                // Uncomment once getCode(), getTitle(), and getEnrolledStudents() are implemented in Course.h
-                // sysReport.addLine(c->getCode() + " - " + c->getTitle() + ": " + 
-                // std::to_string(c->getEnrolledStudents().size()) + " students");
+                sysReport.addLine(c->getCode() + " - " + c->getTitle() + ": " +
+                    std::to_string(c->getEnrolledStudents().size()) + " students");
             }
         }
     } else {

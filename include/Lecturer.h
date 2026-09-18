@@ -20,7 +20,7 @@ public:
 
     void showMenu() const override;
 
-    std::string getRole() const;
+    std::string getRole() const override;
 
     std::vector<Student*> viewEnrolledStudents(const Course& course) const;
 

@@ -16,6 +16,9 @@ public:
     // Adds a time slot to the timetable
     void addSlot(const TimeSlot& slot);
 
+    // Removes a time slot from the timetable
+    void removeSlot(const TimeSlot& slot);
+
     // Getter for time slots
     const std::vector<TimeSlot>& getSlots() const;
 

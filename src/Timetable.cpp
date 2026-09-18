@@ -1,8 +1,13 @@
 #include "Timetable.h"
+#include <algorithm>
 
 // Add a slot to the timetable
 void Timetable::addSlot(const TimeSlot& slot) {
     slots.push_back(slot);
+}
+
+void Timetable::removeSlot(const TimeSlot& slot) {
+    slots.erase(std::remove(slots.begin(), slots.end(), slot), slots.end());
 }
 
 // Get access to all time slots (const reference)

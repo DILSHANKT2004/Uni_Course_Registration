@@ -1,54 +1,65 @@
 #include "Student.h"
-#include "Course.h" // Full definition required to access course methods
+#include "Course.h" 
 #include "StudentCard.h"
 #include <iostream>
 #include <algorithm>
+#include <stdexcept>
 
 #include "CustomExceptions.h"
 
-// Constructor: Passes credentials to the Person base class and initializes the StudentCard
 Student::Student(std::string id, std::string name, std::string username, std::string password)
     : Person(id, name, username, password) {
-    // Dynamically allocate the owned StudentCard
     studentCard = new StudentCard("UID-" + id, this);
 }
 
-// Destructor: Clean up dynamically allocated resources (Rule of Three/Five requirement)
 Student::~Student() {
     delete studentCard;
 }
 
-// Core Enrolment Engine Logic
 void Student::enrol(Course* course) {
-    // 1. Check if course is full [FR3.2]
-     if (course->isFull()) {
-       throw EnrolmentException("Enrolment failed: Course capacity reached.");
-     }
+    if (course == nullptr) {
+        throw std::invalid_argument("Course pointer cannot be null.");
+    }
 
-    // 2. Check prerequisites [FR3.2, FR3.4]
-     if (!course->meetsPrerequisites(this)) {
-         throw EnrolmentException("Enrolment failed: Prerequisites not met.");
-     }
+    if (isEnrolledIn(course)) {
+        return;
+    }
 
-    // 3. Check for timetable clashes [FR4.2]
-     if (personalTimetable.hasClashWith(course->getTimetable())) {
-         throw TimetableClashException("Enrolment failed: Timetable clash detected.");
-     }
+    if (course->isFull()) {
+        throw CourseFullException("Enrolment failed: Course capacity reached.");
+    }
 
-    // If all checks pass, register the student
+    if (!course->meetsPrerequisites(this)) {
+        throw PrerequisiteNotMetException("Enrolment failed: Prerequisites not met.");
+    }
+
+    if (personalTimetable.hasClashWith(course->getTimetable())) {
+        throw TimetableClashException("Enrolment failed: Timetable clash detected.");
+    }
+
     enrolledCourses.push_back(course);
-    
-    // Note: You will also need to merge the course's time slots into personalTimetable
-    // and tell the Course object to add this student to its register.
+    course->enrolStudent(this);
+
+    for (const auto& slot : course->getTimetable().getSlots()) {
+        personalTimetable.addSlot(slot);
+    }
 }
 
-// Drop a course
 void Student::drop(Course* course) {
+    if (course == nullptr) {
+        throw std::invalid_argument("Course pointer cannot be null.");
+    }
+
     auto it = std::find(enrolledCourses.begin(), enrolledCourses.end(), course);
-    if (it != enrolledCourses.end()) {
-        enrolledCourses.erase(it);
-        // Note: You will also need to remove the course's slots from personalTimetable
-        // and tell the Course object to remove this student.
+    if (it == enrolledCourses.end()) {
+        return;
+    }
+
+    enrolledCourses.erase(it);
+    course->removeStudent(this);
+
+    for (const auto& slot : course->getTimetable().getSlots()) {
+        personalTimetable.removeSlot(slot);
     }
 }
 
@@ -56,12 +67,10 @@ bool Student::isEnrolledIn(const Course* course) const {
     return std::find(enrolledCourses.begin(), enrolledCourses.end(), course) != enrolledCourses.end();
 }
 
-// Const-correct getter for the timetable
 const Timetable& Student::viewTimetable() const {
     return personalTimetable;
 }
 
-// Polymorphic menu implementation [FR1.3]
 void Student::showMenu() const {
     std::cout << "\n=== Student Dashboard ===" << std::endl;
     std::cout << "Welcome, " << getName() << "!" << std::endl;
@@ -71,7 +80,6 @@ void Student::showMenu() const {
     std::cout << "4. View Personal Timetable\n";
     std::cout << "5. Logout\n";
     std::cout << "Select an option: ";
-    // Interactive switch-case logic handled in your UI controller
 }
 
 std::string Student::getRole() const {

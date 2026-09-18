@@ -14,11 +14,9 @@ private:
     bool isOpen;
 
 public:
-    // Constructors
     AttendanceSession();
     AttendanceSession(std::string sessionId, TimeSlot slot, int expiryDurationMinutes);
 
-    // Core functionality
     void open();
     void close();
     bool isActive() const;
@@ -30,4 +28,4 @@ public:
     int getExpiryDuration() const;
 };
 
-#endif // ATTENDANCESESSION_H
+#endif 

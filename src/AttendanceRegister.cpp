@@ -1,6 +1,8 @@
 #include "AttendanceRegister.h"
+#include "Student.h"
 #include "Report.h"
 #include <algorithm>
+#include <set>
 
 // Destructor cleans up dynamically allocated record objects
 AttendanceRegister::~AttendanceRegister() {
@@ -11,7 +13,14 @@ AttendanceRegister::~AttendanceRegister() {
 }
 
 void AttendanceRegister::addSession(const AttendanceSession& session) {
-    sessions.push_back(session);
+    auto it = std::find_if(sessions.begin(), sessions.end(),
+        [&](const AttendanceSession& existing) {
+            return existing.getSessionId() == session.getSessionId();
+        });
+
+    if (it == sessions.end()) {
+        sessions.push_back(session);
+    }
 }
 
 const std::vector<AttendanceSession>& AttendanceRegister::getSessions() const {
@@ -19,32 +28,37 @@ const std::vector<AttendanceSession>& AttendanceRegister::getSessions() const {
 }
 
 // Enforces business rules FR7.2 and stores immutable attendance records
-void AttendanceRegister::markPresent(const Student* student, AttendanceSession* session, 
+void AttendanceRegister::markPresent(const Student* student, AttendanceSession* session,
                                      const std::string& method) {
-    if (!session || !session->isActive()) {
+    if (!student) {
+        throw std::invalid_argument("Cannot mark attendance: student pointer is null.");
+    }
+    if (!session) {
+        throw std::invalid_argument("Cannot mark attendance: session pointer is null.");
+    }
+    if (!session->isActive()) {
         throw SessionClosedException("Cannot mark attendance: Attendance session is closed or expired.");
     }
 
-    // Check for duplicate attendance in the same session
     for (const auto* rec : records) {
         if (rec->getStudent() == student && rec->getSession() == session) {
             throw DuplicateAttendanceException("Student has already been marked present for this session.");
         }
     }
 
-    // Note: Student enrolment validation (NotEnrolledException) is typically verified 
-    // before calling markPresent by matching against enrolled course lists.
-
-    // Record creation
     AttendanceRecord* newRecord = new AttendanceRecord(student, session, "present", method);
     records.push_back(newRecord);
 }
 
 // Captures attendance using the polymorphic AttendanceCapture interface (FR7.6 - FR7.8)
-void AttendanceRegister::markPresentViaCapture(AttendanceCapture& capture, 
-                                               const Student* student, 
+void AttendanceRegister::markPresentViaCapture(AttendanceCapture& capture,
+                                               const Student* student,
                                                AttendanceSession* session) {
     std::string captureToken = capture.captureNext();
+    if (captureToken.empty()) {
+        throw AttendanceException("Cannot mark attendance: captured token is empty.");
+    }
+
     markPresent(student, session, captureToken);
 }
 
@@ -64,9 +78,14 @@ double AttendanceRegister::attendancePercentage(const std::vector<Student*>& stu
     size_t totalAttended = 0;
 
     for (const auto* rec : records) {
-        if (rec->getStatus() == "present" || rec->getStatus() == "late") {
+        if (std::find(students.begin(), students.end(), rec->getStudent()) != students.end() &&
+            (rec->getStatus() == "present" || rec->getStatus() == "late")) {
             totalAttended++;
         }
+    }
+
+    if (totalExpected == 0) {
+        return 0.0;
     }
 
     return (static_cast<double>(totalAttended) / totalExpected) * 100.0;
@@ -80,8 +99,8 @@ double AttendanceRegister::attendancePercentageForStudent(const Student* student
 
     size_t attendedCount = 0;
     for (const auto* rec : records) {
-        if (rec->getStudent() == student && 
-           (rec->getStatus() == "present" || rec->getStatus() == "late")) {
+        if (rec->getStudent() == student &&
+            (rec->getStatus() == "present" || rec->getStatus() == "late")) {
             attendedCount++;
         }
     }
@@ -91,10 +110,43 @@ double AttendanceRegister::attendancePercentageForStudent(const Student* student
 
 // Generates an eligibility report for students falling below the target attendance threshold (FR7.4)
 Report AttendanceRegister::eligibilityReport(double threshold) const {
-    Report report;
-    report.setTitle("Attendance Eligibility Report (Threshold: " + std::to_string(threshold) + "%)");
-    
-    // Eligibility filter logic is populated into the Report object
+    Report report("Attendance Eligibility Report (Threshold: " + std::to_string(threshold) + "%)");
+
+    if (sessions.empty()) {
+        report.addLine("No sessions have been recorded yet.");
+        return report;
+    }
+
+    std::vector<const Student*> students;
+    for (const auto* rec : records) {
+        if (!rec || !rec->getStudent()) {
+            continue;
+        }
+
+        if (std::find(students.begin(), students.end(), rec->getStudent()) == students.end()) {
+            students.push_back(rec->getStudent());
+        }
+    }
+
+    if (students.empty()) {
+        report.addLine("No attendance records available.");
+        return report;
+    }
+
+    bool foundEligibleStudent = false;
+    for (const Student* student : students) {
+        const double percentage = attendancePercentageForStudent(student);
+        if (percentage < threshold) {
+            foundEligibleStudent = true;
+            report.addLine(student->getName() + " (" + student->getId() + "): " +
+                           std::to_string(percentage) + "%");
+        }
+    }
+
+    if (!foundEligibleStudent) {
+        report.addLine("No students are below the attendance threshold.");
+    }
+
     return report;
 }
 

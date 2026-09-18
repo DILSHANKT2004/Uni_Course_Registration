@@ -1,6 +1,6 @@
 #include "Course.h"
 #include "Student.h"
-#include "AttendanceRegister.h" // Full definition required to instantiate and delete
+#include "AttendanceRegister.h" 
 #include "CustomExceptions.h"
 #include <algorithm>
 #include <stdexcept>
@@ -29,7 +29,6 @@ bool prerequisitesMet(const Course& course, const Student* student,
 }
 }
 
-// Constructor initializes core attributes and dynamically allocates the composed AttendanceRegister
 Course::Course(std::string code, std::string title, int creditValue, int capacity)
     : code(code), title(title), creditValue(creditValue), capacity(capacity) {
     if (code.empty()) {
@@ -45,17 +44,14 @@ Course::Course(std::string code, std::string title, int creditValue, int capacit
     attendanceRegister = new AttendanceRegister();
 }
 
-// Destructor cleans up dynamically allocated composition objects[cite: 1]
 Course::~Course() {
     delete attendanceRegister;
 }
 
-// Checks if the current enrolment meets or exceeds the maximum capacity[cite: 1]
 bool Course::isFull() const {
     return enrolledStudents.size() >= static_cast<std::size_t>(capacity);
 }
 
-// Validates prerequisite chains[cite: 1]
 bool Course::meetsPrerequisites(const Student* student) const {
     std::vector<const Course*> visited;
     return prerequisitesMet(*this, student, visited);
@@ -71,7 +67,6 @@ void Course::addPrerequisite(Course* course) {
     }
 }
 
-// Handles the course-side enrolment logic, throwing exceptions on business rule violations[cite: 1]
 void Course::enrolStudent(Student* student) {
     if (!student) {
         throw EnrolmentException("Cannot enrol a null student.");
@@ -85,7 +80,6 @@ void Course::enrolStudent(Student* student) {
             "Cannot enrol: Student has not met prerequisites for " + code + ".");
     }
     
-    // Add if not already enrolled
     if (std::find(enrolledStudents.begin(), enrolledStudents.end(), student) == enrolledStudents.end()) {
         enrolledStudents.push_back(student);
     }
@@ -98,24 +92,43 @@ void Course::removeStudent(Student* student) {
     }
 }
 
-// --- Getters ---
 
-const std::string& Course::getId() const { return code; }
-const std::string& Course::getCode() const { return code; }
-const std::string& Course::getTitle() const { return title; }
-int Course::getCreditValue() const { return creditValue; }
-int Course::getCapacity() const { return capacity; }
-const Timetable& Course::getTimetable() const { return timetable; }
-const std::vector<Student*>& Course::getEnrolledStudents() const { return enrolledStudents; }
+const std::string& Course::getId() const 
+    { return code; }
 
-// --- Overloaded Operators ---
+const std::string& Course::getCode() const
+    { return code; }
 
-// Overloaded equality operator primarily to check if two course instances represent the same offering[cite: 1]
+const std::string& Course::getTitle() const 
+    { return title; }
+
+int Course::getCreditValue() const 
+    { return creditValue; }
+
+int Course::getCapacity() const
+     { return capacity; }
+
+void Course::setCapacity(int newCapacity) {
+    if (newCapacity < 0) {
+        throw std::invalid_argument("Course capacity cannot be negative.");
+    }
+    if (static_cast<std::size_t>(newCapacity) < enrolledStudents.size()) {
+        throw std::invalid_argument("New capacity cannot be smaller than the current enrolled count.");
+    }
+    capacity = newCapacity;
+}
+
+const Timetable& Course::getTimetable() const
+     { return timetable; }
+
+const std::vector<Student*>& Course::getEnrolledStudents() const 
+    { return enrolledStudents; }
+
+
 bool Course::operator==(const Course& other) const {
     return this->code == other.code;
 }
 
-// Overloaded stream insertion operator for formatted reporting[cite: 1]
 std::ostream& operator<<(std::ostream& os, const Course& course) {
     os << "[" << course.code << "] " << course.title 
        << " (" << course.creditValue << " Credits) "
@@ -123,4 +136,5 @@ std::ostream& operator<<(std::ostream& os, const Course& course) {
     return os;
 }
 
-const std::vector<Course*>& Course::getPrerequisites() const { return prerequisites; }
+const std::vector<Course*>& Course::getPrerequisites() const 
+    { return prerequisites; }
