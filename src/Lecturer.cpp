@@ -5,8 +5,14 @@
 #include "AttendanceSession.h"
 #include <iostream>
 #include <algorithm>
+#include <atomic>
+#include <ctime>
 #include <stdexcept>
 #include <sstream>
+
+namespace {
+std::atomic<unsigned long> nextSessionNumber{0};
+}
 
 Lecturer::Lecturer(std::string id, std::string name, std::string username, std::string password)
     : Person(id, name, username, password) {
@@ -63,7 +69,8 @@ AttendanceSession* Lecturer::openAttendanceSession(TimeSlot& slot) {
     }
 
     std::ostringstream sessionIdStream;
-    sessionIdStream << getId() << "-" << std::time(nullptr);
+    sessionIdStream << getId() << "-" << std::time(nullptr)
+                    << "-" << nextSessionNumber.fetch_add(1);
 
     AttendanceSession* session = new AttendanceSession(sessionIdStream.str(), slot, 10);
     session->open();

@@ -13,4 +13,4 @@ public:
     std::string getType() const;
 };
 
-#endif // LECTURECOURSE_H
+#endif 

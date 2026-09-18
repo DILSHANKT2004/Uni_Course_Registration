@@ -8,12 +8,11 @@ private:
     bool groupBased;
 
 public:
-    // Constructor includes the groupBased flag
     ProjectCourse(std::string code, std::string title, int creditValue, int capacity, bool groupBased);
 
-    // Overridden methods
     double computeGrade(double score) const override;
     std::string getType() const;
+    bool isGroupBased() const;
 };
 
-#endif // PROJECTCOURSE_H
+#endif 
