@@ -40,7 +40,6 @@ void TimeSlot::setLocation(const std::string& loc) {
     location = loc;
 }
 
-// Exact equality check
 bool TimeSlot::operator==(const TimeSlot& other) const {
     return (day == other.day &&
             startTime == other.startTime &&
@@ -48,15 +47,12 @@ bool TimeSlot::operator==(const TimeSlot& other) const {
             location == other.location);
 }
 
-// Checks if two time slots overlap on the same day
 bool TimeSlot::overlaps(const TimeSlot& other) const {
-    // If they are on different days, they cannot overlap
     if (day != other.day) {
         return false;
     }
 
-    // Overlap condition: max(start1, start2) < min(end1, end2)
-    // Two slots overlap if one starts strictly before the other ends, and vice versa
+   
     bool startsBeforeOtherEnds = startTime < other.endTime;
     bool otherStartsBeforeThisEnds = other.startTime < endTime;
 
