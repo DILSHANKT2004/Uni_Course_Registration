@@ -95,6 +95,7 @@ void MenuUI::enrolCourse(Student& student) {
 
     try {
         student.enrol(course);
+        save();
         std::cout << "Enrolment successful.\n";
     } catch (const EnrolmentException& exception) {
         std::cout << exception.what() << '\n';
@@ -113,6 +114,7 @@ void MenuUI::dropCourse(Student& student) {
 
     try {
         student.drop(course);
+        save();
         std::cout << "Course dropped.\n";
     } catch (const std::exception& exception) {
         std::cout << "Unable to drop course: " << exception.what() << '\n';
@@ -137,6 +139,7 @@ void MenuUI::studentMenu(Student& student) {
             std::cout << student.viewTimetable();
             break;
         case 5:
+            save();
             return;
         default:
             std::cout << "Invalid option.\n";
