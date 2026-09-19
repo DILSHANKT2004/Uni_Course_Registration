@@ -102,6 +102,15 @@ void FileStorage::load(const std::string& path) {
                 }
                 course->addPrerequisite(prerequisite);
             }
+            else if (type == "ENROL" && tokens.size() >= 3) {
+                Person* person = personRepo->findById(tokens[1]);
+                Student* student = dynamic_cast<Student*>(person);
+                Course* course = courseRepo->findById(tokens[2]);
+                if (!student || !course) {
+                    throw std::invalid_argument("Student or course for enrolment was not found.");
+                }
+                student->enrol(course);
+            }
             
             else {
                 std::cerr << "Warning: Unrecognized or malformed data on line " << lineCount << "\n";
@@ -179,6 +188,16 @@ void FileStorage::save(const std::string& path) {
             if (prerequisite) {
                 outFile << "PREREQUISITE," << c->getCode() << ","
                         << prerequisite->getCode() << "\n";
+            }
+        }
+    }
+
+    for (Course* c : courseRepo->getAll()) {
+        if (!c) continue;
+        for (const Student* student : c->getEnrolledStudents()) {
+            if (student) {
+                outFile << "ENROL," << student->getId() << ","
+                        << c->getCode() << "\n";
             }
         }
     }
