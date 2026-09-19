@@ -22,6 +22,7 @@ public:
 
     std::string getRole() const override;
 
+    const std::vector<Course*>& getAssignedCourses() const;
     std::vector<Student*> viewEnrolledStudents(const Course& course) const;
 
     AttendanceSession* openAttendanceSession(TimeSlot& slot);

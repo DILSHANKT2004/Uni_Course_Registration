@@ -27,9 +27,10 @@ void Administrator::showMenu() const {
     std::cout << "4. Create Course\n";
     std::cout << "5. Edit Course\n";
     std::cout << "6. Remove Course\n";
+    std::cout << "7. Assign Lecturer to Course\n";
     std::cout << "--- System Reports ---\n";
-    std::cout << "7. Generate Report\n";
-    std::cout << "8. Logout\n";
+    std::cout << "8. Generate Report\n";
+    std::cout << "9. Logout\n";
     std::cout << "Select an option: ";
 }
 

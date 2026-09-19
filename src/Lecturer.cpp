@@ -22,6 +22,10 @@ std::string Lecturer::getRole() const {
     return "Lecturer";
 }
 
+const std::vector<Course*>& Lecturer::getAssignedCourses() const {
+    return assignedCourses;
+}
+
 void Lecturer::showMenu() const {
     std::cout << "\n=== Lecturer Dashboard ===\n";
     std::cout << "Welcome, " << getName() << "!\n";

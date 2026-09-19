@@ -26,7 +26,9 @@ private:
     void enrolCourse(Student& student);
     void dropCourse(Student& student);
     void showStudentCourses(const Student& student) const;
+    void showAssignedCourses(const Lecturer& lecturer) const;
     void showLecturerEnrolment(const Lecturer& lecturer) const;
+    void assignLecturerToCourse();
     void save() const;
     void createInitialAdministrator();
 

@@ -143,6 +143,20 @@ void MenuUI::studentMenu(Student& student) {
     }
 }
 
+void MenuUI::showAssignedCourses(const Lecturer& lecturer) const {
+    const std::vector<Course*>& courses = lecturer.getAssignedCourses();
+    if (courses.empty()) {
+        std::cout << "No courses are assigned.\n";
+        return;
+    }
+
+    for (const Course* course : courses) {
+        if (course) {
+            std::cout << course->getCode() << " - " << course->getTitle() << '\n';
+        }
+    }
+}
+
 void MenuUI::showLecturerEnrolment(const Lecturer& lecturer) const {
     const std::string code = readText("Course code: ");
     Course* course = courseRepository.findById(code);
@@ -167,12 +181,33 @@ void MenuUI::showLecturerEnrolment(const Lecturer& lecturer) const {
     }
 }
 
+void MenuUI::assignLecturerToCourse() {
+    const std::string lecturerId = readText("Lecturer ID: ");
+    Person* person = personRepository.findById(lecturerId);
+    Lecturer* lecturer = dynamic_cast<Lecturer*>(person);
+    if (!lecturer) {
+        std::cout << "Lecturer not found.\n";
+        return;
+    }
+
+    const std::string courseCode = readText("Course code: ");
+    Course* course = courseRepository.findById(courseCode);
+    if (!course) {
+        std::cout << "Course not found.\n";
+        return;
+    }
+
+    lecturer->assignCourse(course);
+    std::cout << "Lecturer " << lecturer->getName()
+              << " assigned to course " << course->getCode() << ".\n";
+}
+
 void MenuUI::lecturerMenu(Lecturer& lecturer) {
     while (true) {
         lecturer.showMenu();
         switch (readOption()) {
         case 1:
-            std::cout << "Assigned-course listing is not exposed by the current domain API.\n";
+            showAssignedCourses(lecturer);
             break;
         case 2:
             showLecturerEnrolment(lecturer);
@@ -213,9 +248,12 @@ void MenuUI::administratorMenu(Administrator& administrator) {
                 administrator.removeCourse(readText("Course code: "));
                 break;
             case 7:
-                std::cout << administrator.generateReport();
+                assignLecturerToCourse();
                 break;
             case 8:
+                std::cout << administrator.generateReport();
+                break;
+            case 9:
                 return;
             default:
                 std::cout << "Invalid option.\n";
