@@ -17,5 +17,6 @@ int main() {
 
     MenuUI menu(personRepository, courseRepository, storage, dataPath);
     menu.run();
+
     return 0;
 }
