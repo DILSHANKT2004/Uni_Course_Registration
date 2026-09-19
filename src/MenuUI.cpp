@@ -7,6 +7,7 @@
 #include "Person.h"
 #include "Student.h"
 
+#include <algorithm>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -202,6 +203,68 @@ void MenuUI::assignLecturerToCourse() {
               << " assigned to course " << course->getCode() << ".\n";
 }
 
+void MenuUI::openAttendanceSession(Lecturer& lecturer) {
+    const std::string courseCode = readText("Course code: ");
+    Course* course = courseRepository.findById(courseCode);
+    if (!course) {
+        std::cout << "Course not found.\n";
+        return;
+    }
+
+    const std::vector<Course*>& assignedCourses = lecturer.getAssignedCourses();
+    if (std::find(assignedCourses.begin(), assignedCourses.end(), course) == assignedCourses.end()) {
+        std::cout << "Access denied: Lecturer is not assigned to this course.\n";
+        return;
+    }
+
+    const std::vector<TimeSlot>& slots = course->getTimetable().getSlots();
+    if (slots.empty()) {
+        std::cout << "No time slots are configured for this course.\n";
+        return;
+    }
+
+    std::cout << "Available time slots:\n";
+    for (std::size_t index = 0; index < slots.size(); ++index) {
+        std::cout << index + 1 << ". " << slots[index] << '\n';
+    }
+
+    const int slotOption = readOption();
+    if (slotOption < 1 || static_cast<std::size_t>(slotOption) > slots.size()) {
+        std::cout << "Invalid time slot.\n";
+        return;
+    }
+
+    AttendanceSession* session = lecturer.openAttendanceSession(
+        slots[static_cast<std::size_t>(slotOption - 1)]);
+    activeAttendanceSessions.emplace_back(session);
+    std::cout << "Attendance session opened: " << session->getSessionId() << '\n';
+}
+
+void MenuUI::closeAttendanceSession(Lecturer& lecturer) {
+    if (activeAttendanceSessions.empty()) {
+        std::cout << "No active attendance sessions.\n";
+        return;
+    }
+
+    std::cout << "Active attendance sessions:\n";
+    for (std::size_t index = 0; index < activeAttendanceSessions.size(); ++index) {
+        std::cout << index + 1 << ". "
+                  << activeAttendanceSessions[index]->getSessionId() << '\n';
+    }
+
+    const int sessionOption = readOption();
+    if (sessionOption < 1 || static_cast<std::size_t>(sessionOption) > activeAttendanceSessions.size()) {
+        std::cout << "Invalid attendance session.\n";
+        return;
+    }
+
+    std::unique_ptr<AttendanceSession>& session =
+        activeAttendanceSessions[static_cast<std::size_t>(sessionOption - 1)];
+    lecturer.closeAttendanceSession(*session);
+    std::cout << "Attendance session closed: " << session->getSessionId() << '\n';
+    activeAttendanceSessions.erase(activeAttendanceSessions.begin() + sessionOption - 1);
+}
+
 void MenuUI::lecturerMenu(Lecturer& lecturer) {
     while (true) {
         lecturer.showMenu();
@@ -213,8 +276,10 @@ void MenuUI::lecturerMenu(Lecturer& lecturer) {
             showLecturerEnrolment(lecturer);
             break;
         case 3:
+            openAttendanceSession(lecturer);
+            break;
         case 4:
-            std::cout << "Attendance sessions require a selectable course time slot; this UI path is not yet exposed by the domain API.\n";
+            closeAttendanceSession(lecturer);
             break;
         case 5:
             return;

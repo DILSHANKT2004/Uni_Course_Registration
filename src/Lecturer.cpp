@@ -53,7 +53,7 @@ std::vector<Student*> Lecturer::viewEnrolledStudents(const Course& course) const
     return course.getEnrolledStudents();
 }
 
-AttendanceSession* Lecturer::openAttendanceSession(TimeSlot& slot) {
+AttendanceSession* Lecturer::openAttendanceSession(const TimeSlot& slot) {
     bool slotBelongsToAssignedCourse = false;
 
     for (const Course* assignedCourse : assignedCourses) {

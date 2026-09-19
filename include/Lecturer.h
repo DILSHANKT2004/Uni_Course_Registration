@@ -25,7 +25,7 @@ public:
     const std::vector<Course*>& getAssignedCourses() const;
     std::vector<Student*> viewEnrolledStudents(const Course& course) const;
 
-    AttendanceSession* openAttendanceSession(TimeSlot& slot);
+    AttendanceSession* openAttendanceSession(const TimeSlot& slot);
     void closeAttendanceSession(AttendanceSession& session);
 
     void assignCourse(Course* course);

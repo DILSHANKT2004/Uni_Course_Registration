@@ -3,8 +3,11 @@
 
 #include "FileStorage.h"
 #include "Repository.h"
+#include "AttendanceSession.h"
 
+#include <memory>
 #include <string>
+#include <vector>
 
 class Person;
 class Student;
@@ -17,6 +20,7 @@ private:
     Repository<Course>& courseRepository;
     Storage& storage;
     std::string storagePath;
+    std::vector<std::unique_ptr<AttendanceSession>> activeAttendanceSessions;
 
     Person* login() const;
     void showCourses() const;
@@ -28,6 +32,8 @@ private:
     void showStudentCourses(const Student& student) const;
     void showAssignedCourses(const Lecturer& lecturer) const;
     void showLecturerEnrolment(const Lecturer& lecturer) const;
+    void openAttendanceSession(Lecturer& lecturer);
+    void closeAttendanceSession(Lecturer& lecturer);
     void assignLecturerToCourse();
     void save() const;
     void createInitialAdministrator();
