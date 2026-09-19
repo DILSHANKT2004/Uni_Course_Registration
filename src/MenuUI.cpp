@@ -319,9 +319,12 @@ void MenuUI::administratorMenu(Administrator& administrator) {
                 assignLecturerToCourse();
                 break;
             case 9:
-                std::cout << administrator.generateReport();
+                administrator.addCoursePrerequisite(readText("Course code: "));
                 break;
             case 10:
+                std::cout << administrator.generateReport();
+                break;
+            case 11:
                 return;
             default:
                 std::cout << "Invalid option.\n";

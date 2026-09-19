@@ -1,4 +1,5 @@
 #include "Course.h"
+#include "Lecturer.h"
 #include "Student.h"
 #include "AttendanceRegister.h" 
 #include "CustomExceptions.h"
@@ -65,6 +66,10 @@ void Course::addPrerequisite(Course* course) {
     if (course && std::find(prerequisites.begin(), prerequisites.end(), course) == prerequisites.end()) {
         prerequisites.push_back(course);
     }
+}
+
+void Course::setAssignedLecturer(Lecturer* lecturer) {
+    assignedLecturer = lecturer;
 }
 
 void Course::addTimeSlot(const TimeSlot& slot) {
@@ -137,8 +142,27 @@ std::ostream& operator<<(std::ostream& os, const Course& course) {
     os << "[" << course.code << "] " << course.title 
        << " (" << course.creditValue << " Credits) "
        << "- Capacity: " << course.enrolledStudents.size() << "/" << course.capacity;
+    if (course.assignedLecturer) {
+        os << " - Lecturer: " << course.assignedLecturer->getName();
+    } else {
+        os << " - Lecturer: Unassigned";
+    }
+    os << " - Prerequisites: ";
+    if (course.prerequisites.empty()) {
+        os << "None";
+    } else {
+        for (std::size_t index = 0; index < course.prerequisites.size(); ++index) {
+            if (index > 0) {
+                os << ", ";
+            }
+            os << course.prerequisites[index]->getCode();
+        }
+    }
     return os;
 }
 
 const std::vector<Course*>& Course::getPrerequisites() const 
     { return prerequisites; }
+
+Lecturer* Course::getAssignedLecturer() const
+    { return assignedLecturer; }

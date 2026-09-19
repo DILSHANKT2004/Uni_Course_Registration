@@ -29,9 +29,10 @@ void Administrator::showMenu() const {
     std::cout << "6. Remove Course\n";
     std::cout << "7. Add Course Time Slot\n";
     std::cout << "8. Assign Lecturer to Course\n";
+    std::cout << "9. Add Course Prerequisite\n";
     std::cout << "--- System Reports ---\n";
-    std::cout << "9. Generate Report\n";
-    std::cout << "10. Logout\n";
+    std::cout << "10. Generate Report\n";
+    std::cout << "11. Logout\n";
     std::cout << "Select an option: ";
 }
 
@@ -221,6 +222,21 @@ void Administrator::addCourseTimeSlot(const std::string& courseCode) {
         Time{endHour, endMinute},
         location));
     std::cout << "Time slot added to course " << courseCode << ".\n";
+}
+
+void Administrator::addCoursePrerequisite(const std::string& courseCode) {
+    if (!courseRepo) return;
+
+    Course* course = courseRepo->findById(courseCode);
+    std::string prerequisiteCode;
+    std::cout << "Prerequisite course code: ";
+    std::getline(std::cin, prerequisiteCode);
+    Course* prerequisite = courseRepo->findById(prerequisiteCode);
+    if (!course || !prerequisite) {
+        throw std::invalid_argument("Course or prerequisite was not found.");
+    }
+    course->addPrerequisite(prerequisite);
+    std::cout << "Prerequisite added to course " << courseCode << ".\n";
 }
 
 

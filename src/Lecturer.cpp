@@ -94,4 +94,5 @@ void Lecturer::assignCourse(Course* course) {
     if (it == assignedCourses.end()) {
         assignedCourses.push_back(course);
     }
+    course->setAssignedLecturer(this);
 }

@@ -9,6 +9,7 @@
 // Forward declarations to avoid circular dependencies
 class Student;
 class AttendanceRegister;
+class Lecturer;
 
 class Course {
 private:
@@ -19,6 +20,7 @@ private:
 
     std::vector<Course*> prerequisites;
     std::vector<Student*> enrolledStudents; 
+    Lecturer* assignedLecturer = nullptr;
     
     Timetable timetable;                   
     AttendanceRegister* attendanceRegister; 
@@ -38,6 +40,7 @@ public:
     bool meetsPrerequisites(const Student* student) const;
     
     void addPrerequisite(Course* course);
+    void setAssignedLecturer(Lecturer* lecturer);
     void addTimeSlot(const TimeSlot& slot);
     void enrolStudent(Student* student);
     void removeStudent(Student* student);
@@ -51,6 +54,7 @@ public:
     void setCapacity(int newCapacity);
     
     const std::vector<Course*>& getPrerequisites() const;
+    Lecturer* getAssignedLecturer() const;
     const Timetable& getTimetable() const;
     const std::vector<Student*>& getEnrolledStudents() const;
 

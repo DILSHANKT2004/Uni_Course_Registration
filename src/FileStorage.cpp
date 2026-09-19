@@ -85,6 +85,23 @@ void FileStorage::load(const std::string& path) {
                     Time{endHour, endMinute},
                     tokens[7]));
             }
+            else if (type == "ASSIGN" && tokens.size() >= 3) {
+                Course* course = courseRepo->findById(tokens[1]);
+                Person* person = personRepo->findById(tokens[2]);
+                Lecturer* lecturer = dynamic_cast<Lecturer*>(person);
+                if (!course || !lecturer) {
+                    throw std::invalid_argument("Course or lecturer for assignment was not found.");
+                }
+                lecturer->assignCourse(course);
+            }
+            else if (type == "PREREQUISITE" && tokens.size() >= 3) {
+                Course* course = courseRepo->findById(tokens[1]);
+                Course* prerequisite = courseRepo->findById(tokens[2]);
+                if (!course || !prerequisite) {
+                    throw std::invalid_argument("Course or prerequisite was not found.");
+                }
+                course->addPrerequisite(prerequisite);
+            }
             
             else {
                 std::cerr << "Warning: Unrecognized or malformed data on line " << lineCount << "\n";
@@ -137,6 +154,12 @@ void FileStorage::save(const std::string& path) {
         outFile << c->getCode() << "," << c->getTitle() << "," 
                 << c->getCreditValue() << "," << c->getCapacity() << "\n";
 
+    }
+
+    // Save timetable slots and course relationships after all course definitions.
+    for (Course* c : courseRepo->getAll()) {
+        if (!c) continue;
+
         for (const TimeSlot& slot : c->getTimetable().getSlots()) {
             outFile << "SLOT," << c->getCode() << ","
                 << static_cast<int>(slot.getDay()) << ","
@@ -146,7 +169,18 @@ void FileStorage::save(const std::string& path) {
                 << slot.getEndTime().minutes << ","
                 << slot.getLocation() << "\n";
         }
-        
+
+        if (c->getAssignedLecturer()) {
+            outFile << "ASSIGN," << c->getCode() << ","
+                    << c->getAssignedLecturer()->getId() << "\n";
+        }
+
+        for (const Course* prerequisite : c->getPrerequisites()) {
+            if (prerequisite) {
+                outFile << "PREREQUISITE," << c->getCode() << ","
+                        << prerequisite->getCode() << "\n";
+            }
+        }
     }
 
     outFile.close();
