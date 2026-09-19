@@ -313,12 +313,15 @@ void MenuUI::administratorMenu(Administrator& administrator) {
                 administrator.removeCourse(readText("Course code: "));
                 break;
             case 7:
-                assignLecturerToCourse();
+                administrator.addCourseTimeSlot(readText("Course code: "));
                 break;
             case 8:
-                std::cout << administrator.generateReport();
+                assignLecturerToCourse();
                 break;
             case 9:
+                std::cout << administrator.generateReport();
+                break;
+            case 10:
                 return;
             default:
                 std::cout << "Invalid option.\n";

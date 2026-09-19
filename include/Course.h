@@ -38,6 +38,7 @@ public:
     bool meetsPrerequisites(const Student* student) const;
     
     void addPrerequisite(Course* course);
+    void addTimeSlot(const TimeSlot& slot);
     void enrolStudent(Student* student);
     void removeStudent(Student* student);
 

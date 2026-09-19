@@ -62,6 +62,29 @@ void FileStorage::load(const std::string& path) {
                     std::stoi(tokens[3]),
                     std::stoi(tokens[4])));
             }
+            else if (type == "SLOT" && tokens.size() >= 8) {
+                Course* course = courseRepo->findById(tokens[1]);
+                if (!course) {
+                    throw std::invalid_argument("Course for time slot was not found.");
+                }
+
+                const int day = std::stoi(tokens[2]);
+                const int startHour = std::stoi(tokens[3]);
+                const int startMinute = std::stoi(tokens[4]);
+                const int endHour = std::stoi(tokens[5]);
+                const int endMinute = std::stoi(tokens[6]);
+                if (day < 0 || day > 6 || startHour < 0 || startHour > 23 ||
+                    endHour < 0 || endHour > 23 || startMinute < 0 || startMinute > 59 ||
+                    endMinute < 0 || endMinute > 59) {
+                    throw std::invalid_argument("Invalid time slot values.");
+                }
+
+                course->addTimeSlot(TimeSlot(
+                    static_cast<DayOfWeek>(day),
+                    Time{startHour, startMinute},
+                    Time{endHour, endMinute},
+                    tokens[7]));
+            }
             
             else {
                 std::cerr << "Warning: Unrecognized or malformed data on line " << lineCount << "\n";
@@ -113,6 +136,16 @@ void FileStorage::save(const std::string& path) {
         
         outFile << c->getCode() << "," << c->getTitle() << "," 
                 << c->getCreditValue() << "," << c->getCapacity() << "\n";
+
+        for (const TimeSlot& slot : c->getTimetable().getSlots()) {
+            outFile << "SLOT," << c->getCode() << ","
+                << static_cast<int>(slot.getDay()) << ","
+                << slot.getStartTime().hours << ","
+                << slot.getStartTime().minutes << ","
+                << slot.getEndTime().hours << ","
+                << slot.getEndTime().minutes << ","
+                << slot.getLocation() << "\n";
+        }
         
     }
 

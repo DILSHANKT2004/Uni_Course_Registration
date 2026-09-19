@@ -32,6 +32,7 @@ public:
     void createCourse();
     void editCourse(const std::string& courseCode);
     void removeCourse(const std::string& courseCode);
+    void addCourseTimeSlot(const std::string& courseCode);
 
     // System Reports
     Report generateReport() const;

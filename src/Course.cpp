@@ -67,6 +67,10 @@ void Course::addPrerequisite(Course* course) {
     }
 }
 
+void Course::addTimeSlot(const TimeSlot& slot) {
+    timetable.addSlot(slot);
+}
+
 void Course::enrolStudent(Student* student) {
     if (!student) {
         throw EnrolmentException("Cannot enrol a null student.");

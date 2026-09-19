@@ -27,10 +27,11 @@ void Administrator::showMenu() const {
     std::cout << "4. Create Course\n";
     std::cout << "5. Edit Course\n";
     std::cout << "6. Remove Course\n";
-    std::cout << "7. Assign Lecturer to Course\n";
+    std::cout << "7. Add Course Time Slot\n";
+    std::cout << "8. Assign Lecturer to Course\n";
     std::cout << "--- System Reports ---\n";
-    std::cout << "8. Generate Report\n";
-    std::cout << "9. Logout\n";
+    std::cout << "9. Generate Report\n";
+    std::cout << "10. Logout\n";
     std::cout << "Select an option: ";
 }
 
@@ -175,6 +176,51 @@ void Administrator::removeCourse(const std::string& courseCode) {
 
     courseRepo->remove(course);
     std::cout << "Course " << courseCode << " removed successfully.\n";
+}
+
+void Administrator::addCourseTimeSlot(const std::string& courseCode) {
+    if (!courseRepo) return;
+
+    Course* course = courseRepo->findById(courseCode);
+    if (!course) {
+        throw std::invalid_argument("Time slot setup failed: Course code " + courseCode + " not found.");
+    }
+
+    int day;
+    int startHour;
+    int startMinute;
+    int endHour;
+    int endMinute;
+    std::string location;
+
+    std::cout << "Day (1 Monday - 7 Sunday): ";
+    std::cin >> day;
+    std::cout << "Start hour (0-23): ";
+    std::cin >> startHour;
+    std::cout << "Start minute (0-59): ";
+    std::cin >> startMinute;
+    std::cout << "End hour (0-23): ";
+    std::cin >> endHour;
+    std::cout << "End minute (0-59): ";
+    std::cin >> endMinute;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cout << "Location: ";
+    std::getline(std::cin, location);
+
+    if (day < 1 || day > 7 || startHour < 0 || startHour > 23 ||
+        endHour < 0 || endHour > 23 || startMinute < 0 || startMinute > 59 ||
+        endMinute < 0 || endMinute > 59 ||
+        Time{endHour, endMinute} <= Time{startHour, startMinute}) {
+        throw std::invalid_argument("Invalid time slot values.");
+    }
+
+    const DayOfWeek selectedDay = static_cast<DayOfWeek>(day - 1);
+    course->addTimeSlot(TimeSlot(
+        selectedDay,
+        Time{startHour, startMinute},
+        Time{endHour, endMinute},
+        location));
+    std::cout << "Time slot added to course " << courseCode << ".\n";
 }
 
 
