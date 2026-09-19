@@ -68,12 +68,20 @@ void Course::addPrerequisite(Course* course) {
     }
 }
 
+void Course::clearPrerequisites() {
+    prerequisites.clear();
+}
+
 void Course::setAssignedLecturer(Lecturer* lecturer) {
     assignedLecturer = lecturer;
 }
 
 void Course::addTimeSlot(const TimeSlot& slot) {
     timetable.addSlot(slot);
+}
+
+void Course::updateTimeSlot(std::size_t index, const TimeSlot& slot) {
+    timetable.updateSlot(index, slot);
 }
 
 void Course::enrolStudent(Student* student) {
@@ -117,6 +125,20 @@ int Course::getCreditValue() const
 int Course::getCapacity() const
      { return capacity; }
 
+void Course::setTitle(const std::string& newTitle) {
+    if (newTitle.empty()) {
+        throw std::invalid_argument("Course title cannot be empty.");
+    }
+    title = newTitle;
+}
+
+void Course::setCreditValue(int newCreditValue) {
+    if (newCreditValue <= 0) {
+        throw std::invalid_argument("Course credit value must be positive.");
+    }
+    creditValue = newCreditValue;
+}
+
 void Course::setCapacity(int newCapacity) {
     if (newCapacity < 0) {
         throw std::invalid_argument("Course capacity cannot be negative.");
@@ -132,6 +154,9 @@ const Timetable& Course::getTimetable() const
 
 const std::vector<Student*>& Course::getEnrolledStudents() const 
     { return enrolledStudents; }
+
+AttendanceRegister& Course::getAttendanceRegister() const
+    { return *attendanceRegister; }
 
 
 bool Course::operator==(const Course& other) const {

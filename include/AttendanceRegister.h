@@ -19,7 +19,7 @@ private:
     std::vector<AttendanceSession> sessions;
 
 public:
-    AttendanceRegister() = default;
+    AttendanceRegister();
     ~AttendanceRegister();
 
     AttendanceRegister(const AttendanceRegister&) = delete;
@@ -27,12 +27,16 @@ public:
 
     void addSession(const AttendanceSession& session);
     const std::vector<AttendanceSession>& getSessions() const;
+    AttendanceSession* findSession(const std::string& sessionId);
 
     void markPresent(const Student* student, AttendanceSession* session, 
                      const std::string& method);
     
     void markPresentViaCapture(AttendanceCapture& capture, const Student* student, 
                                AttendanceSession* session);
+    void restoreRecord(const Student* student, AttendanceSession* session,
+                       const std::string& status, const std::string& method,
+                       std::time_t timestamp);
 
     void addCorrection(const CorrectionRecord& rec);
 

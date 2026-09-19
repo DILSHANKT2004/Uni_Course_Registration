@@ -20,7 +20,8 @@ protected:
 public:
     // Constructors
     AttendanceRecord(const Student* student, const AttendanceSession* session, 
-                     std::string status, std::string captureMethod);
+                     std::string status, std::string captureMethod,
+                     std::time_t recordedAt = 0);
     virtual ~AttendanceRecord() = default;
 
     // Getters (Immutable - no setters provided per FR7.3)

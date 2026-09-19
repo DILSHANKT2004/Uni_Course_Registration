@@ -20,6 +20,7 @@ public:
 
     void enrol(Course* course);
     void drop(Course* course);
+    void refreshTimetable();
     bool isEnrolledIn(const Course* course) const;
     const Timetable& viewTimetable() const;
 

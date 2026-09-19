@@ -3,8 +3,9 @@
 
 // Parametrized constructor for base AttendanceRecord
 AttendanceRecord::AttendanceRecord(const Student* student, const AttendanceSession* session, 
-                                   std::string status, std::string captureMethod)
-    : student(student), session(session), timestamp(std::time(nullptr)), 
+                                   std::string status, std::string captureMethod,
+                                   std::time_t recordedAt)
+    : student(student), session(session), timestamp(recordedAt == 0 ? std::time(nullptr) : recordedAt), 
       status(std::move(status)), captureMethod(std::move(captureMethod)) {}
 
 // Getters

@@ -33,6 +33,7 @@ public:
     void editCourse(const std::string& courseCode);
     void removeCourse(const std::string& courseCode);
     void addCourseTimeSlot(const std::string& courseCode);
+    void editCourseTimeSlot(const std::string& courseCode);
     void addCoursePrerequisite(const std::string& courseCode);
 
     // System Reports

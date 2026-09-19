@@ -40,8 +40,10 @@ public:
     bool meetsPrerequisites(const Student* student) const;
     
     void addPrerequisite(Course* course);
+    void clearPrerequisites();
     void setAssignedLecturer(Lecturer* lecturer);
     void addTimeSlot(const TimeSlot& slot);
+    void updateTimeSlot(std::size_t index, const TimeSlot& slot);
     void enrolStudent(Student* student);
     void removeStudent(Student* student);
 
@@ -51,12 +53,15 @@ public:
 
     int getCreditValue() const;
     int getCapacity() const;
+    void setTitle(const std::string& newTitle);
+    void setCreditValue(int newCreditValue);
     void setCapacity(int newCapacity);
     
     const std::vector<Course*>& getPrerequisites() const;
     Lecturer* getAssignedLecturer() const;
     const Timetable& getTimetable() const;
     const std::vector<Student*>& getEnrolledStudents() const;
+    AttendanceRegister& getAttendanceRegister() const;
 
     bool operator==(const Course& other) const;
     friend std::ostream& operator<<(std::ostream& os, const Course& course);

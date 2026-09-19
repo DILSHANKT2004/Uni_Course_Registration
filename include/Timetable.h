@@ -13,6 +13,8 @@ public:
 
     void addSlot(const TimeSlot& slot);
 
+    void updateSlot(std::size_t index, const TimeSlot& slot);
+
     void removeSlot(const TimeSlot& slot);
 
     const std::vector<TimeSlot>& getSlots() const;

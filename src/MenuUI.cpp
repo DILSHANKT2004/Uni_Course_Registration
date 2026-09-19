@@ -1,6 +1,7 @@
 #include "MenuUI.h"
 
 #include "Administrator.h"
+#include "AttendanceRegister.h"
 #include "Course.h"
 #include "CustomExceptions.h"
 #include "Lecturer.h"
@@ -85,6 +86,27 @@ void MenuUI::showStudentCourses(const Student& student) const {
     }
 }
 
+void MenuUI::showAttendanceHistory(const Student& student) const {
+    bool foundRecord = false;
+    for (const Course* course : courseRepository.getAll()) {
+        if (!course) {
+            continue;
+        }
+        for (const AttendanceRecord* record : course->getAttendanceRegister().getRecords()) {
+            if (record && record->getStudent() == &student) {
+                const std::time_t timestamp = record->getTimestamp();
+                std::cout << course->getCode() << " - " << record->getStatus()
+                          << " - " << record->getCaptureMethod()
+                          << " - " << std::ctime(&timestamp);
+                foundRecord = true;
+            }
+        }
+    }
+    if (!foundRecord) {
+        std::cout << "No attendance history found.\n";
+    }
+}
+
 void MenuUI::enrolCourse(Student& student) {
     const std::string code = readText("Course code: ");
     Course* course = courseRepository.findById(code);
@@ -136,9 +158,16 @@ void MenuUI::studentMenu(Student& student) {
             dropCourse(student);
             break;
         case 4:
+            student.refreshTimetable();
             std::cout << student.viewTimetable();
             break;
         case 5:
+            markAttendance(student);
+            break;
+        case 6:
+            showAttendanceHistory(student);
+            break;
+        case 7:
             save();
             return;
         default:
@@ -239,7 +268,8 @@ void MenuUI::openAttendanceSession(Lecturer& lecturer) {
 
     AttendanceSession* session = lecturer.openAttendanceSession(
         slots[static_cast<std::size_t>(slotOption - 1)]);
-    activeAttendanceSessions.emplace_back(session);
+    course->getAttendanceRegister().addSession(*session);
+    activeAttendanceSessions.push_back({course, std::unique_ptr<AttendanceSession>(session)});
     std::cout << "Attendance session opened: " << session->getSessionId() << '\n';
 }
 
@@ -252,7 +282,7 @@ void MenuUI::closeAttendanceSession(Lecturer& lecturer) {
     std::cout << "Active attendance sessions:\n";
     for (std::size_t index = 0; index < activeAttendanceSessions.size(); ++index) {
         std::cout << index + 1 << ". "
-                  << activeAttendanceSessions[index]->getSessionId() << '\n';
+                  << activeAttendanceSessions[index].session->getSessionId() << '\n';
     }
 
     const int sessionOption = readOption();
@@ -261,11 +291,50 @@ void MenuUI::closeAttendanceSession(Lecturer& lecturer) {
         return;
     }
 
-    std::unique_ptr<AttendanceSession>& session =
+    ActiveAttendanceSession& activeSession =
         activeAttendanceSessions[static_cast<std::size_t>(sessionOption - 1)];
-    lecturer.closeAttendanceSession(*session);
-    std::cout << "Attendance session closed: " << session->getSessionId() << '\n';
+    lecturer.closeAttendanceSession(*activeSession.session);
+    std::cout << "Attendance session closed: " << activeSession.session->getSessionId() << '\n';
     activeAttendanceSessions.erase(activeAttendanceSessions.begin() + sessionOption - 1);
+}
+
+void MenuUI::markAttendance(Student& student) {
+    std::vector<std::size_t> availableSessions;
+    for (std::size_t index = 0; index < activeAttendanceSessions.size(); ++index) {
+        const ActiveAttendanceSession& activeSession = activeAttendanceSessions[index];
+        if (activeSession.course && student.isEnrolledIn(activeSession.course) &&
+            activeSession.session->isActive()) {
+            availableSessions.push_back(index);
+        }
+    }
+
+    if (availableSessions.empty()) {
+        std::cout << "No active attendance sessions are available for your courses.\n";
+        return;
+    }
+
+    std::cout << "Available attendance sessions:\n";
+    for (std::size_t displayIndex = 0; displayIndex < availableSessions.size(); ++displayIndex) {
+        const ActiveAttendanceSession& activeSession = activeAttendanceSessions[availableSessions[displayIndex]];
+        std::cout << displayIndex + 1 << ". " << activeSession.course->getCode()
+                  << " - " << activeSession.session->getSessionId() << '\n';
+    }
+
+    const int sessionOption = readOption();
+    if (sessionOption < 1 || static_cast<std::size_t>(sessionOption) > availableSessions.size()) {
+        std::cout << "Invalid attendance session.\n";
+        return;
+    }
+
+    ActiveAttendanceSession& activeSession =
+        activeAttendanceSessions[availableSessions[static_cast<std::size_t>(sessionOption - 1)]];
+    AttendanceSession* registeredSession = activeSession.course->getAttendanceRegister().findSession(
+        activeSession.session->getSessionId());
+    activeSession.course->getAttendanceRegister().markPresent(
+        &student, registeredSession, "student");
+    save();
+    std::cout << "Attendance marked successfully for "
+              << activeSession.course->getCode() << ".\n";
 }
 
 void MenuUI::lecturerMenu(Lecturer& lecturer) {
@@ -308,26 +377,37 @@ void MenuUI::administratorMenu(Administrator& administrator) {
                 break;
             case 4:
                 administrator.createCourse();
+                save();
                 break;
             case 5:
                 administrator.editCourse(readText("Course code: "));
+                save();
                 break;
             case 6:
                 administrator.removeCourse(readText("Course code: "));
+                save();
                 break;
             case 7:
                 administrator.addCourseTimeSlot(readText("Course code: "));
+                save();
                 break;
             case 8:
-                assignLecturerToCourse();
+                administrator.editCourseTimeSlot(readText("Course code: "));
+                save();
                 break;
             case 9:
-                administrator.addCoursePrerequisite(readText("Course code: "));
+                assignLecturerToCourse();
+                save();
                 break;
             case 10:
-                std::cout << administrator.generateReport();
+                administrator.addCoursePrerequisite(readText("Course code: "));
+                save();
                 break;
             case 11:
+                std::cout << administrator.generateReport();
+                break;
+            case 12:
+                save();
                 return;
             default:
                 std::cout << "Invalid option.\n";

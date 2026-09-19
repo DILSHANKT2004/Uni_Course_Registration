@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <string>
+#include "StorageException.h"
 
 // Custom Exception Classes for University Course Registration System
 class EnrolmentException : public std::runtime_error {
@@ -14,12 +15,6 @@ public:
 class AttendanceException : public std::runtime_error {
 public:
     explicit AttendanceException(const std::string& msg) 
-        : std::runtime_error(msg) {}
-};
-
-class StorageException : public std::runtime_error {
-public:
-    explicit StorageException(const std::string& msg) 
         : std::runtime_error(msg) {}
 };
 

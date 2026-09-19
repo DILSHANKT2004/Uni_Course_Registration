@@ -96,3 +96,16 @@ void Lecturer::assignCourse(Course* course) {
     }
     course->setAssignedLecturer(this);
 }
+
+void Lecturer::unassignCourse(Course* course) {
+    if (!course) {
+        return;
+    }
+
+    assignedCourses.erase(
+        std::remove(assignedCourses.begin(), assignedCourses.end(), course),
+        assignedCourses.end());
+    if (course->getAssignedLecturer() == this) {
+        course->setAssignedLecturer(nullptr);
+    }
+}

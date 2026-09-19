@@ -63,6 +63,18 @@ void Student::drop(Course* course) {
     }
 }
 
+void Student::refreshTimetable() {
+    personalTimetable = Timetable();
+    for (const Course* course : enrolledCourses) {
+        if (!course) {
+            continue;
+        }
+        for (const TimeSlot& slot : course->getTimetable().getSlots()) {
+            personalTimetable.addSlot(slot);
+        }
+    }
+}
+
 bool Student::isEnrolledIn(const Course* course) const {
     return std::find(enrolledCourses.begin(), enrolledCourses.end(), course) != enrolledCourses.end();
 }
@@ -78,7 +90,9 @@ void Student::showMenu() const {
     std::cout << "2. Enrol in a Course\n";
     std::cout << "3. Drop a Course\n";
     std::cout << "4. View Personal Timetable\n";
-    std::cout << "5. Logout\n";
+    std::cout << "5. Mark Attendance\n";
+    std::cout << "6. View Attendance History\n";
+    std::cout << "7. Logout\n";
     std::cout << "Select an option: ";
 }
 

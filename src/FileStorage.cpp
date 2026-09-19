@@ -1,5 +1,8 @@
 #include "FileStorage.h"
 #include "StorageException.h"
+#include "AttendanceRecord.h"
+#include "AttendanceRegister.h"
+#include "AttendanceSession.h"
 #include "Student.h"
 #include "Lecturer.h"       
 #include "Administrator.h"   
@@ -11,6 +14,7 @@
 #include <sstream>
 #include <vector>
 #include <typeinfo>
+#include <ctime>
 
 static std::vector<std::string> parseCSVLine(const std::string& line) {
     std::vector<std::string> tokens;
@@ -103,6 +107,9 @@ void FileStorage::load(const std::string& path) {
                 course->addPrerequisite(prerequisite);
             }
             else if (type == "ENROL" && tokens.size() >= 3) {
+                if (tokens[1].empty() || tokens[2].empty()) {
+                    throw std::invalid_argument("Student and course IDs are required for enrolment.");
+                }
                 Person* person = personRepo->findById(tokens[1]);
                 Student* student = dynamic_cast<Student*>(person);
                 Course* course = courseRepo->findById(tokens[2]);
@@ -110,6 +117,26 @@ void FileStorage::load(const std::string& path) {
                     throw std::invalid_argument("Student or course for enrolment was not found.");
                 }
                 student->enrol(course);
+            }
+            else if (type == "ATTENDANCE" && tokens.size() >= 7) {
+                Person* person = personRepo->findById(tokens[1]);
+                Student* student = dynamic_cast<Student*>(person);
+                Course* course = courseRepo->findById(tokens[2]);
+                if (!student || !course) {
+                    throw std::invalid_argument("Student or course for attendance was not found.");
+                }
+
+                AttendanceSession* session = course->getAttendanceRegister().findSession(tokens[3]);
+                if (!session) {
+                    const std::vector<TimeSlot>& slots = course->getTimetable().getSlots();
+                    const TimeSlot slot = slots.empty() ? TimeSlot() : slots.front();
+                    course->getAttendanceRegister().addSession(
+                        AttendanceSession(tokens[3], slot, 10));
+                    session = course->getAttendanceRegister().findSession(tokens[3]);
+                }
+
+                course->getAttendanceRegister().restoreRecord(
+                    student, session, tokens[4], tokens[5], static_cast<std::time_t>(std::stoll(tokens[6])));
             }
             
             else {
@@ -188,6 +215,15 @@ void FileStorage::save(const std::string& path) {
             if (prerequisite) {
                 outFile << "PREREQUISITE," << c->getCode() << ","
                         << prerequisite->getCode() << "\n";
+            }
+        }
+
+        for (const AttendanceRecord* record : c->getAttendanceRegister().getRecords()) {
+            if (record && record->getStudent() && record->getSession()) {
+                outFile << "ATTENDANCE," << record->getStudent()->getId() << ","
+                        << c->getCode() << "," << record->getSession()->getSessionId() << ","
+                        << record->getStatus() << "," << record->getCaptureMethod() << ","
+                        << record->getTimestamp() << "\n";
             }
         }
     }

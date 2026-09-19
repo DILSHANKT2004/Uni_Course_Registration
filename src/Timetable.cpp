@@ -6,6 +6,13 @@ void Timetable::addSlot(const TimeSlot& slot) {
     slots.push_back(slot);
 }
 
+void Timetable::updateSlot(std::size_t index, const TimeSlot& slot) {
+    if (index >= slots.size()) {
+        throw std::out_of_range("Time slot index is out of range.");
+    }
+    slots[index] = slot;
+}
+
 void Timetable::removeSlot(const TimeSlot& slot) {
     slots.erase(std::remove(slots.begin(), slots.end(), slot), slots.end());
 }

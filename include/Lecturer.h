@@ -29,6 +29,7 @@ public:
     void closeAttendanceSession(AttendanceSession& session);
 
     void assignCourse(Course* course);
+    void unassignCourse(Course* course);
 };
 
 #endif 

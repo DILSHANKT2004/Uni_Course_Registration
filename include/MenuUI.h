@@ -13,6 +13,7 @@ class Person;
 class Student;
 class Lecturer;
 class Administrator;
+class Course;
 
 class MenuUI {
 private:
@@ -20,7 +21,11 @@ private:
     Repository<Course>& courseRepository;
     Storage& storage;
     std::string storagePath;
-    std::vector<std::unique_ptr<AttendanceSession>> activeAttendanceSessions;
+    struct ActiveAttendanceSession {
+        Course* course;
+        std::unique_ptr<AttendanceSession> session;
+    };
+    std::vector<ActiveAttendanceSession> activeAttendanceSessions;
 
     Person* login() const;
     void showCourses() const;
@@ -30,10 +35,12 @@ private:
     void enrolCourse(Student& student);
     void dropCourse(Student& student);
     void showStudentCourses(const Student& student) const;
+    void showAttendanceHistory(const Student& student) const;
     void showAssignedCourses(const Lecturer& lecturer) const;
     void showLecturerEnrolment(const Lecturer& lecturer) const;
     void openAttendanceSession(Lecturer& lecturer);
     void closeAttendanceSession(Lecturer& lecturer);
+    void markAttendance(Student& student);
     void assignLecturerToCourse();
     void save() const;
     void createInitialAdministrator();

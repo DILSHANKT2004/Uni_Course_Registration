@@ -4,6 +4,10 @@
 #include <algorithm>
 #include <set>
 
+AttendanceRegister::AttendanceRegister() {
+    sessions.reserve(100);
+}
+
 // Destructor cleans up dynamically allocated record objects
 AttendanceRegister::~AttendanceRegister() {
     for (auto rec : records) {
@@ -25,6 +29,15 @@ void AttendanceRegister::addSession(const AttendanceSession& session) {
 
 const std::vector<AttendanceSession>& AttendanceRegister::getSessions() const {
     return sessions;
+}
+
+AttendanceSession* AttendanceRegister::findSession(const std::string& sessionId) {
+    for (AttendanceSession& session : sessions) {
+        if (session.getSessionId() == sessionId) {
+            return &session;
+        }
+    }
+    return nullptr;
 }
 
 // Enforces business rules FR7.2 and stores immutable attendance records
@@ -60,6 +73,14 @@ void AttendanceRegister::markPresentViaCapture(AttendanceCapture& capture,
     }
 
     markPresent(student, session, captureToken);
+}
+
+void AttendanceRegister::restoreRecord(const Student* student, AttendanceSession* session,
+                                       const std::string& status, const std::string& method,
+                                       std::time_t timestamp) {
+    if (student && session) {
+        records.push_back(new AttendanceRecord(student, session, status, method, timestamp));
+    }
 }
 
 // Appends correction records without modifying/deleting existing records (FR7.3)
