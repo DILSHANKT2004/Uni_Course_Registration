@@ -51,6 +51,10 @@ void FileStorage::load(const std::string& path) {
             else if (type == "LECTURER" && tokens.size() >= 5) {
                 personRepo->add(new Lecturer(tokens[1], tokens[2], tokens[3], tokens[4]));
             } 
+            else if (type == "ADMIN" && tokens.size() >= 5) {
+                personRepo->add(new Administrator(
+                    tokens[1], tokens[2], tokens[3], tokens[4], personRepo, courseRepo));
+            }
             else if (type == "LECTURE_COURSE" && tokens.size() >= 5) {
                 courseRepo->add(new LectureCourse(
                     tokens[1],
